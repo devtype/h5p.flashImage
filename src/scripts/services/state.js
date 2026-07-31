@@ -2,9 +2,11 @@
  * State serialization helpers for H5P.FlashImage.
  *
  * Flash media lives in params and is not stored in state.
+ * Answer shuffle order is stored as `answerOrder` (never touch H5P.Question's
+ * instance `order`, which is the section layout order).
  */
 
-const STATE_VERSION = 1;
+const STATE_VERSION = 2;
 
 /** @typedef {'loading'|'ready'|'flashing'|'question'} Phase */
 
@@ -15,7 +17,7 @@ const StateService = {
    * @param {number[]} extra.selectedIndexes
    * @param {boolean} extra.submitted
    * @param {boolean} extra.solutionsShown
-   * @param {number[]} [extra.order]
+   * @param {number[]} [extra.answerOrder]
    * @returns {object}
    */
   serialize(extra = {}) {
@@ -27,7 +29,9 @@ const StateService = {
         : [],
       submitted: !!extra.submitted,
       solutionsShown: !!extra.solutionsShown,
-      order: Array.isArray(extra.order) ? extra.order.slice() : undefined
+      answerOrder: Array.isArray(extra.answerOrder)
+        ? extra.answerOrder.slice()
+        : undefined
     };
   },
 
@@ -38,7 +42,7 @@ const StateService = {
    *   selectedIndexes: number[],
    *   submitted: boolean,
    *   solutionsShown: boolean,
-   *   order: number[]|undefined
+   *   answerOrder: number[]|undefined
    * }}
    */
   normalize(state) {
@@ -48,13 +52,17 @@ const StateService = {
         selectedIndexes: [],
         submitted: false,
         solutionsShown: false,
-        order: undefined
+        answerOrder: undefined
       };
     }
     let phase = state.phase || 'ready';
     if (phase === 'flashing' || phase === 'loading') {
       phase = state.submitted ? 'question' : 'ready';
     }
+    // Prefer answerOrder; accept legacy `order` from 0.1.x saved state.
+    const rawOrder = Array.isArray(state.answerOrder)
+      ? state.answerOrder
+      : (Array.isArray(state.order) ? state.order : undefined);
     return {
       phase,
       selectedIndexes: Array.isArray(state.selectedIndexes)
@@ -62,7 +70,9 @@ const StateService = {
         : [],
       submitted: !!state.submitted,
       solutionsShown: !!state.solutionsShown,
-      order: Array.isArray(state.order) ? state.order.map((i) => Number(i)) : undefined
+      answerOrder: rawOrder
+        ? rawOrder.map((i) => Number(i)).filter((i) => Number.isFinite(i))
+        : undefined
     };
   }
 };

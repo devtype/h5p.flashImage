@@ -110,10 +110,11 @@ function FlashImage(params, contentId, extras) {
   });
 
   const restored = StateService.normalize(self.previousState);
-  self.order = restored.order;
-  if (!self.order) {
+  // Must not use self.order — H5P.Question stores section layout order there.
+  self.answerOrder = restored.answerOrder;
+  if (!self.answerOrder) {
     const length = self.params.answers.length;
-    self.order = self.params.behaviour.randomAnswers
+    self.answerOrder = self.params.behaviour.randomAnswers
       ? shuffledIndexes(length)
       : Array.from({ length }, (_, i) => i);
   }
@@ -200,7 +201,7 @@ FlashImage.prototype.registerDomElements = function () {
 
   self.answerList = new AnswerList({
     answers: self.params.answers,
-    order: self.order,
+    order: self.answerOrder,
     singleChoice: self.singleChoice,
     groupLabel: a11y.answersLabel,
     correctLabel: a11y.correctAnswer,
@@ -496,7 +497,7 @@ FlashImage.prototype.getCurrentState = function () {
     selectedIndexes: this.state.selectedIndexes,
     submitted: this.state.submitted,
     solutionsShown: this.state.solutionsShown,
-    order: this.order
+    answerOrder: this.answerOrder
   });
 };
 

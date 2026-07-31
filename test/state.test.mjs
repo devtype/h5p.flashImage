@@ -9,13 +9,22 @@ describe('StateService', () => {
       selectedIndexes: [2, 0],
       submitted: true,
       solutionsShown: false,
-      order: [1, 0, 2]
+      answerOrder: [1, 0, 2]
     });
-    assert.equal(state.v, 1);
+    assert.equal(state.v, 2);
     assert.equal(state.phase, 'question');
     assert.deepEqual(state.selectedIndexes, [2, 0]);
     assert.equal(state.submitted, true);
-    assert.deepEqual(state.order, [1, 0, 2]);
+    assert.deepEqual(state.answerOrder, [1, 0, 2]);
+  });
+
+  it('accepts legacy order key from older saved state', () => {
+    const restored = StateService.normalize({
+      phase: 'question',
+      selectedIndexes: [0],
+      order: [2, 1, 0]
+    });
+    assert.deepEqual(restored.answerOrder, [2, 1, 0]);
   });
 
   it('normalizes flashing/loading phases on restore', () => {
