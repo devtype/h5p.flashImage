@@ -6,6 +6,11 @@
   max-width: 100%;
   padding: 0.25rem 0 0.5rem;
 
+  // Class-level display rules beat the UA [hidden] stylesheet; force hide.
+  [hidden] {
+    display: none !important;
+  }
+
   *,
   *::before,
   *::after {
