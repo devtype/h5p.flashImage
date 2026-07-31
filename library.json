@@ -1,0 +1,30 @@
+{
+  "title": "Bilderblitzen",
+  "description": "Shows a flash image for a configured duration, then a built-in choice question. Learners must start the flash deliberately; the image stays hidden while answering.",
+  "machineName": "H5P.FlashImage",
+  "majorVersion": 0,
+  "minorVersion": 1,
+  "patchVersion": 0,
+  "runnable": 1,
+  "embedTypes": ["iframe"],
+  "author": "devtype",
+  "license": "MIT",
+  "preloadedDependencies": [
+    {
+      "machineName": "H5P.Question",
+      "majorVersion": 1,
+      "minorVersion": 5
+    },
+    {
+      "machineName": "H5P.Image",
+      "majorVersion": 1,
+      "minorVersion": 1
+    }
+  ],
+  "preloadedJs": [
+    { "path": "dist/h5p-flashimage.js" }
+  ],
+  "preloadedCss": [
+    { "path": "dist/h5p-flashimage.css" }
+  ]
+}

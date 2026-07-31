@@ -1,0 +1,105 @@
+{
+  "semantics": [
+    {
+      "label": "Introduction",
+      "description": "Texte facultatif affiché avant que l’apprenant ne démarre le flash d’image. HTML autorisé."
+    },
+    {
+      "label": "Image flash",
+      "fields": [
+        {
+          "label": "Image",
+          "description": "Image affichée brièvement après le démarrage."
+        },
+        {
+          "label": "Texte alternatif",
+          "description": "Décrit l’image flash pour les lecteurs d’écran."
+        },
+        {
+          "label": "Durée d’affichage (ms)",
+          "description": "Durée pendant laquelle l’image reste visible après le démarrage. Plage autorisée : 100–10000 millisecondes."
+        }
+      ]
+    },
+    {
+      "label": "Question",
+      "description": "Question affichée après la fin du flash d’image.",
+      "default": "<p>Qu’as-tu vu ?</p>"
+    },
+    {
+      "label": "Options de réponse",
+      "entity": "option",
+      "field": {
+        "label": "Option",
+        "fields": [
+          { "label": "Texte" },
+          { "label": "Correcte" }
+        ]
+      }
+    },
+    {
+      "label": "Paramètres de comportement",
+      "fields": [
+        {
+          "label": "Autoriser la répétition du flash d’image",
+          "description": "Si activé, les apprenants voient un bouton distinct pour réafficher l’image pendant qu’ils répondent."
+        },
+        { "label": "Activer le bouton « Vérifier »" },
+        { "label": "Activer le bouton « Afficher la solution »" },
+        { "label": "Activer le bouton « Réessayer »" },
+        {
+          "label": "Type de question",
+          "description": "Automatique utilise des boutons radio pour une bonne réponse et des cases à cocher pour plusieurs.",
+          "options": [
+            { "label": "Automatique" },
+            { "label": "Choix unique (boutons radio)" },
+            { "label": "Choix multiple (cases à cocher)" }
+          ]
+        },
+        {
+          "label": "Attribuer un point pour toute la tâche",
+          "description": "Si activé, les apprenants obtiennent soit le score maximal, soit zéro (tout ou rien)."
+        },
+        { "label": "Mélanger les réponses" },
+        {
+          "label": "Score maximal",
+          "description": "Utilisé lorsque « Attribuer un point pour toute la tâche » est désactivé. En mode un point, le score max effectif est 1."
+        }
+      ]
+    },
+    {
+      "label": "Traductions de l’interface",
+      "fields": [
+        { "label": "Bouton démarrer le flash", "default": "Démarrer le flash d’image" },
+        { "label": "Bouton réafficher l’image", "default": "Réafficher l’image" },
+        { "label": "Message de chargement", "default": "Chargement de l’image…" },
+        { "label": "Bouton vérifier", "default": "Vérifier" },
+        { "label": "Bouton afficher la solution", "default": "Afficher la solution" },
+        { "label": "Bouton réessayer", "default": "Réessayer" },
+        {
+          "label": "Libellé de la barre de score",
+          "description": "Variables disponibles : :num et :total",
+          "default": "Tu as obtenu :num points sur :total"
+        },
+        {
+          "label": "Aucune réponse sélectionnée",
+          "default": "Veuillez sélectionner une réponse avant de vérifier."
+        }
+      ]
+    },
+    {
+      "label": "Accessibilité",
+      "fields": [
+        { "label": "Libellé de la zone image flash", "default": "Image flash" },
+        { "label": "Libellé des options de réponse", "default": "Options de réponse" },
+        { "label": "Annonce bonne réponse", "default": "Bonne réponse" },
+        { "label": "Annonce mauvaise réponse", "default": "Mauvaise réponse" },
+        { "label": "Annonce flash démarré", "default": "Flash d’image démarré." },
+        {
+          "label": "Annonce flash terminé",
+          "default": "Image masquée. Réponds à la question."
+        }
+      ]
+    }
+  ]
+}

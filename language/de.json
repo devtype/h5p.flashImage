@@ -1,0 +1,105 @@
+{
+  "semantics": [
+    {
+      "label": "Einleitung",
+      "description": "Optionaler Text, der angezeigt wird, bevor die Lernenden das Bilderblitzen starten. HTML ist erlaubt."
+    },
+    {
+      "label": "Blitzbild",
+      "fields": [
+        {
+          "label": "Bild",
+          "description": "Bild, das nach dem Start kurz angezeigt wird."
+        },
+        {
+          "label": "Alternativtext",
+          "description": "Beschreibt das Blitzbild für Screenreader."
+        },
+        {
+          "label": "Anzeigedauer (ms)",
+          "description": "Wie lange das Bild nach dem Start sichtbar bleibt. Zulässiger Bereich: 100–10000 Millisekunden."
+        }
+      ]
+    },
+    {
+      "label": "Frage",
+      "description": "Frage, die nach dem Bilderblitzen angezeigt wird.",
+      "default": "<p>Was hast du gesehen?</p>"
+    },
+    {
+      "label": "Antwortmöglichkeiten",
+      "entity": "Option",
+      "field": {
+        "label": "Option",
+        "fields": [
+          { "label": "Text" },
+          { "label": "Richtig" }
+        ]
+      }
+    },
+    {
+      "label": "Verhalten",
+      "fields": [
+        {
+          "label": "Wiederholung des Bilderblitzens erlauben",
+          "description": "Wenn aktiviert, sehen Lernende eine eigene Schaltfläche, um das Bild während der Beantwortung erneut anzuzeigen."
+        },
+        { "label": "Schaltfläche „Überprüfen“ aktivieren" },
+        { "label": "Schaltfläche „Lösung anzeigen“ aktivieren" },
+        { "label": "Schaltfläche „Erneut versuchen“ aktivieren" },
+        {
+          "label": "Fragetyp",
+          "description": "Automatisch nutzt Radiobuttons bei einer richtigen Antwort und Checkboxen bei mehreren.",
+          "options": [
+            { "label": "Automatisch" },
+            { "label": "Einfachauswahl (Radiobuttons)" },
+            { "label": "Mehrfachauswahl (Checkboxen)" }
+          ]
+        },
+        {
+          "label": "Einen Punkt für die gesamte Aufgabe vergeben",
+          "description": "Wenn aktiviert, erhalten Lernende entweder die volle Punktzahl oder null (Alles-oder-nichts)."
+        },
+        { "label": "Antworten zufällig anordnen" },
+        {
+          "label": "Maximale Punktzahl",
+          "description": "Wird verwendet, wenn „Einen Punkt für die gesamte Aufgabe vergeben“ deaktiviert ist. Im Ein-Punkt-Modus beträgt die effektive Maximalpunktzahl 1."
+        }
+      ]
+    },
+    {
+      "label": "Übersetzungen der Benutzeroberfläche",
+      "fields": [
+        { "label": "Schaltfläche „Bilderblitzen starten“", "default": "Bilderblitzen starten" },
+        { "label": "Schaltfläche „Bild erneut anzeigen“", "default": "Bild erneut anzeigen" },
+        { "label": "Lademeldung", "default": "Bild wird geladen…" },
+        { "label": "Schaltfläche „Überprüfen“", "default": "Überprüfen" },
+        { "label": "Schaltfläche „Lösung anzeigen“", "default": "Lösung anzeigen" },
+        { "label": "Schaltfläche „Erneut versuchen“", "default": "Erneut versuchen" },
+        {
+          "label": "Beschriftung der Punkteanzeige",
+          "description": "Verfügbare Variablen: :num und :total",
+          "default": "Du hast :num von :total Punkten erreicht"
+        },
+        {
+          "label": "Keine Antwort ausgewählt",
+          "default": "Bitte wähle eine Antwort aus, bevor du überprüfst."
+        }
+      ]
+    },
+    {
+      "label": "Barrierefreiheit",
+      "fields": [
+        { "label": "Beschriftung des Blitzbildbereichs", "default": "Blitzbild" },
+        { "label": "Beschriftung der Antwortmöglichkeiten", "default": "Antwortmöglichkeiten" },
+        { "label": "Ansage richtige Antwort", "default": "Richtige Antwort" },
+        { "label": "Ansage falsche Antwort", "default": "Falsche Antwort" },
+        { "label": "Ansage Bilderblitzen gestartet", "default": "Bilderblitzen gestartet." },
+        {
+          "label": "Ansage Bilderblitzen beendet",
+          "default": "Bild ausgeblendet. Beantworte die Frage."
+        }
+      ]
+    }
+  ]
+}

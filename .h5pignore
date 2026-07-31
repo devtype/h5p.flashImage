@@ -1,0 +1,12 @@
+node_modules
+src
+examples
+.gitignore
+.eslintrc.json
+.babelrc
+.editorconfig
+package.json
+package-lock.json
+webpack.config.js
+README.md
+*.h5p

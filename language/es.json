@@ -1,0 +1,105 @@
+{
+  "semantics": [
+    {
+      "label": "Introducción",
+      "description": "Texto opcional mostrado antes de que el alumno inicie el destello de imagen. Se permite HTML."
+    },
+    {
+      "label": "Imagen flash",
+      "fields": [
+        {
+          "label": "Imagen",
+          "description": "Imagen mostrada brevemente después de iniciar."
+        },
+        {
+          "label": "Texto alternativo",
+          "description": "Describe la imagen flash para lectores de pantalla."
+        },
+        {
+          "label": "Duración de visualización (ms)",
+          "description": "Cuánto tiempo permanece visible la imagen tras el inicio. Rango permitido: 100–10000 milisegundos."
+        }
+      ]
+    },
+    {
+      "label": "Pregunta",
+      "description": "Pregunta mostrada tras el destello de imagen.",
+      "default": "<p>¿Qué viste?</p>"
+    },
+    {
+      "label": "Opciones de respuesta",
+      "entity": "opción",
+      "field": {
+        "label": "Opción",
+        "fields": [
+          { "label": "Texto" },
+          { "label": "Correcta" }
+        ]
+      }
+    },
+    {
+      "label": "Ajustes de comportamiento",
+      "fields": [
+        {
+          "label": "Permitir repetir el destello de imagen",
+          "description": "Si está activado, los alumnos ven un botón distinto para volver a mostrar la imagen mientras responden."
+        },
+        { "label": "Activar el botón «Comprobar»" },
+        { "label": "Activar el botón «Mostrar solución»" },
+        { "label": "Activar el botón «Reintentar»" },
+        {
+          "label": "Tipo de pregunta",
+          "description": "Automático usa botones de radio para una respuesta correcta y casillas para varias.",
+          "options": [
+            { "label": "Automático" },
+            { "label": "Opción única (botones de radio)" },
+            { "label": "Opción múltiple (casillas)" }
+          ]
+        },
+        {
+          "label": "Dar un punto por toda la tarea",
+          "description": "Si está activado, los alumnos obtienen la puntuación completa o cero (todo o nada)."
+        },
+        { "label": "Aleatorizar respuestas" },
+        {
+          "label": "Puntuación máxima",
+          "description": "Se usa cuando «Dar un punto por toda la tarea» está desactivado. En modo de un punto, el máximo efectivo es 1."
+        }
+      ]
+    },
+    {
+      "label": "Traducciones de la interfaz",
+      "fields": [
+        { "label": "Botón iniciar destello", "default": "Iniciar destello de imagen" },
+        { "label": "Botón volver a mostrar imagen", "default": "Mostrar imagen de nuevo" },
+        { "label": "Mensaje de carga", "default": "Cargando imagen…" },
+        { "label": "Botón comprobar", "default": "Comprobar" },
+        { "label": "Botón mostrar solución", "default": "Mostrar solución" },
+        { "label": "Botón reintentar", "default": "Reintentar" },
+        {
+          "label": "Etiqueta de la barra de puntuación",
+          "description": "Variables disponibles: :num y :total",
+          "default": "Has obtenido :num de :total puntos"
+        },
+        {
+          "label": "Ninguna respuesta seleccionada",
+          "default": "Selecciona una respuesta antes de comprobar."
+        }
+      ]
+    },
+    {
+      "label": "Accesibilidad",
+      "fields": [
+        { "label": "Etiqueta de la zona de imagen flash", "default": "Imagen flash" },
+        { "label": "Etiqueta de opciones de respuesta", "default": "Opciones de respuesta" },
+        { "label": "Anuncio respuesta correcta", "default": "Respuesta correcta" },
+        { "label": "Anuncio respuesta incorrecta", "default": "Respuesta incorrecta" },
+        { "label": "Anuncio destello iniciado", "default": "Destello de imagen iniciado." },
+        {
+          "label": "Anuncio destello finalizado",
+          "default": "Imagen oculta. Responde a la pregunta."
+        }
+      ]
+    }
+  ]
+}

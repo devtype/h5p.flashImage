@@ -1,0 +1,290 @@
+[
+  {
+    "name": "intro",
+    "label": "Introduction",
+    "description": "Optional text shown before the learner starts the image flash. May contain HTML.",
+    "type": "text",
+    "widget": "html",
+    "importance": "low",
+    "optional": true,
+    "enterMode": "p",
+    "tags": [
+      "strong",
+      "em",
+      "u",
+      "a",
+      "ul",
+      "ol",
+      "h2",
+      "h3",
+      "hr",
+      "pre",
+      "code"
+    ]
+  },
+  {
+    "name": "media",
+    "type": "group",
+    "label": "Flash image",
+    "importance": "high",
+    "expanded": true,
+    "fields": [
+      {
+        "name": "flashImage",
+        "type": "image",
+        "label": "Image",
+        "description": "Image shown briefly after the learner starts the flash.",
+        "importance": "high"
+      },
+      {
+        "name": "alternativeText",
+        "type": "text",
+        "label": "Alternative text",
+        "description": "Describes the flash image for screen reader users.",
+        "optional": true,
+        "importance": "high"
+      },
+      {
+        "name": "displayDurationMs",
+        "type": "number",
+        "label": "Display duration (ms)",
+        "description": "How long the image stays visible after start. Allowed range: 100–10000 milliseconds.",
+        "default": 1000,
+        "min": 100,
+        "max": 10000,
+        "importance": "high"
+      }
+    ]
+  },
+  {
+    "name": "question",
+    "type": "text",
+    "widget": "html",
+    "label": "Question",
+    "description": "Question shown after the image flash ends.",
+    "importance": "high",
+    "default": "<p>What did you see?</p>",
+    "enterMode": "p",
+    "tags": [
+      "strong",
+      "em",
+      "sub",
+      "sup",
+      "h2",
+      "h3",
+      "pre",
+      "code"
+    ]
+  },
+  {
+    "name": "answers",
+    "type": "list",
+    "importance": "high",
+    "label": "Answer options",
+    "entity": "option",
+    "min": 2,
+    "defaultNum": 2,
+    "field": {
+      "name": "answer",
+      "type": "group",
+      "label": "Option",
+      "importance": "high",
+      "fields": [
+        {
+          "name": "text",
+          "type": "text",
+          "importance": "high",
+          "widget": "html",
+          "label": "Text",
+          "tags": [
+            "strong",
+            "em",
+            "sub",
+            "sup",
+            "code"
+          ]
+        },
+        {
+          "name": "correct",
+          "type": "boolean",
+          "label": "Correct",
+          "importance": "low",
+          "default": false
+        }
+      ]
+    }
+  },
+  {
+    "name": "behaviour",
+    "type": "group",
+    "label": "Behavioural settings",
+    "importance": "low",
+    "expanded": false,
+    "fields": [
+      {
+        "name": "allowRepeatFlash",
+        "type": "boolean",
+        "label": "Allow repeating the image flash",
+        "description": "When enabled, learners see a separate button to flash the image again while answering.",
+        "default": true
+      },
+      {
+        "name": "enableCheckButton",
+        "type": "boolean",
+        "label": "Enable \"Check\" button",
+        "default": true
+      },
+      {
+        "name": "enableSolutionsButton",
+        "type": "boolean",
+        "label": "Enable \"Show solution\" button",
+        "default": true
+      },
+      {
+        "name": "enableRetry",
+        "type": "boolean",
+        "label": "Enable \"Retry\" button",
+        "default": true
+      },
+      {
+        "name": "type",
+        "type": "select",
+        "label": "Question type",
+        "description": "Automatic uses radio buttons for one correct answer and checkboxes for several.",
+        "default": "auto",
+        "options": [
+          { "value": "auto", "label": "Automatic" },
+          { "value": "single", "label": "Single choice (radio buttons)" },
+          { "value": "multi", "label": "Multiple choice (checkboxes)" }
+        ]
+      },
+      {
+        "name": "singlePoint",
+        "type": "boolean",
+        "label": "Give one point for the whole task",
+        "description": "When enabled, learners get either full score or zero (all-or-nothing).",
+        "default": true
+      },
+      {
+        "name": "randomAnswers",
+        "type": "boolean",
+        "label": "Randomize answers",
+        "default": false
+      },
+      {
+        "name": "maxScore",
+        "type": "number",
+        "label": "Maximum score",
+        "description": "Used when \"Give one point for the whole task\" is disabled. With single-point mode the effective max score is 1.",
+        "default": 1,
+        "min": 0,
+        "max": 100
+      }
+    ]
+  },
+  {
+    "name": "l10n",
+    "type": "group",
+    "label": "User interface translations",
+    "common": true,
+    "importance": "low",
+    "expanded": false,
+    "fields": [
+      {
+        "name": "startFlash",
+        "type": "text",
+        "label": "Start flash button",
+        "default": "Start image flash"
+      },
+      {
+        "name": "repeatFlash",
+        "type": "text",
+        "label": "Repeat flash button",
+        "default": "Show image again"
+      },
+      {
+        "name": "loading",
+        "type": "text",
+        "label": "Loading message",
+        "default": "Loading image…"
+      },
+      {
+        "name": "checkAnswer",
+        "type": "text",
+        "label": "Check button",
+        "default": "Check"
+      },
+      {
+        "name": "showSolution",
+        "type": "text",
+        "label": "Show solution button",
+        "default": "Show solution"
+      },
+      {
+        "name": "retry",
+        "type": "text",
+        "label": "Retry button",
+        "default": "Retry"
+      },
+      {
+        "name": "scoreBarLabel",
+        "type": "text",
+        "label": "Score bar label",
+        "description": "Available variables: :num and :total",
+        "default": "You got :num out of :total points"
+      },
+      {
+        "name": "noAnswer",
+        "type": "text",
+        "label": "No answer selected",
+        "default": "Please select an answer before checking."
+      }
+    ]
+  },
+  {
+    "name": "a11y",
+    "type": "group",
+    "label": "Accessibility translations",
+    "common": true,
+    "importance": "low",
+    "expanded": false,
+    "fields": [
+      {
+        "name": "flashImageLabel",
+        "type": "text",
+        "label": "Flash image region label",
+        "default": "Flash image"
+      },
+      {
+        "name": "answersLabel",
+        "type": "text",
+        "label": "Answer options label",
+        "default": "Answer options"
+      },
+      {
+        "name": "correctAnswer",
+        "type": "text",
+        "label": "Correct answer announcement",
+        "default": "Correct answer"
+      },
+      {
+        "name": "wrongAnswer",
+        "type": "text",
+        "label": "Wrong answer announcement",
+        "default": "Wrong answer"
+      },
+      {
+        "name": "flashStarted",
+        "type": "text",
+        "label": "Flash started announcement",
+        "default": "Image flash started."
+      },
+      {
+        "name": "flashEnded",
+        "type": "text",
+        "label": "Flash ended announcement",
+        "default": "Image hidden. Answer the question."
+      }
+    ]
+  }
+]

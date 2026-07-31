@@ -1,0 +1,105 @@
+{
+  "semantics": [
+    {
+      "label": "Inleiding",
+      "description": "Optionele tekst die wordt getoond voordat de leerling de beeldflits start. HTML is toegestaan."
+    },
+    {
+      "label": "Flitsbeeld",
+      "fields": [
+        {
+          "label": "Afbeelding",
+          "description": "Afbeelding die kort wordt getoond na het starten."
+        },
+        {
+          "label": "Alternatieve tekst",
+          "description": "Beschrijft het flitsbeeld voor schermlezers."
+        },
+        {
+          "label": "Weergaveduur (ms)",
+          "description": "Hoe lang de afbeelding zichtbaar blijft na de start. Toegestaan bereik: 100–10000 milliseconden."
+        }
+      ]
+    },
+    {
+      "label": "Vraag",
+      "description": "Vraag die na de beeldflits wordt getoond.",
+      "default": "<p>Wat heb je gezien?</p>"
+    },
+    {
+      "label": "Antwoordopties",
+      "entity": "optie",
+      "field": {
+        "label": "Optie",
+        "fields": [
+          { "label": "Tekst" },
+          { "label": "Correct" }
+        ]
+      }
+    },
+    {
+      "label": "Gedragsinstellingen",
+      "fields": [
+        {
+          "label": "Herhalen van de beeldflits toestaan",
+          "description": "Indien ingeschakeld zien leerlingen een aparte knop om de afbeelding opnieuw te tonen tijdens het beantwoorden."
+        },
+        { "label": "Knop „Controleren” inschakelen" },
+        { "label": "Knop „Toon oplossing” inschakelen" },
+        { "label": "Knop „Opnieuw” inschakelen" },
+        {
+          "label": "Vraagtype",
+          "description": "Automatisch gebruikt keuzerondjes bij één juist antwoord en selectievakjes bij meerdere.",
+          "options": [
+            { "label": "Automatisch" },
+            { "label": "Enkele keuze (keuzerondjes)" },
+            { "label": "Meerkeuze (selectievakjes)" }
+          ]
+        },
+        {
+          "label": "Eén punt voor de hele taak",
+          "description": "Indien ingeschakeld krijgen leerlingen de volle score of nul (alles-of-niets)."
+        },
+        { "label": "Antwoorden willekeurig ordenen" },
+        {
+          "label": "Maximale score",
+          "description": "Gebruikt wanneer „Eén punt voor de hele taak” is uitgeschakeld. In één-puntmodus is de effectieve max-score 1."
+        }
+      ]
+    },
+    {
+      "label": "Vertalingen van de gebruikersinterface",
+      "fields": [
+        { "label": "Knop start flits", "default": "Beeldflits starten" },
+        { "label": "Knop toon afbeelding opnieuw", "default": "Afbeelding opnieuw tonen" },
+        { "label": "Laadbericht", "default": "Afbeelding laden…" },
+        { "label": "Knop controleren", "default": "Controleren" },
+        { "label": "Knop toon oplossing", "default": "Toon oplossing" },
+        { "label": "Knop opnieuw", "default": "Opnieuw" },
+        {
+          "label": "Label van de scorebalk",
+          "description": "Beschikbare variabelen: :num en :total",
+          "default": "Je hebt :num van de :total punten"
+        },
+        {
+          "label": "Geen antwoord geselecteerd",
+          "default": "Selecteer een antwoord voordat je controleert."
+        }
+      ]
+    },
+    {
+      "label": "Toegankelijkheid",
+      "fields": [
+        { "label": "Label flitsbeeldgebied", "default": "Flitsbeeld" },
+        { "label": "Label antwoordopties", "default": "Antwoordopties" },
+        { "label": "Aankondiging juist antwoord", "default": "Juist antwoord" },
+        { "label": "Aankondiging onjuist antwoord", "default": "Onjuist antwoord" },
+        { "label": "Aankondiging flits gestart", "default": "Beeldflits gestart." },
+        {
+          "label": "Aankondiging flits beëindigd",
+          "default": "Afbeelding verborgen. Beantwoord de vraag."
+        }
+      ]
+    }
+  ]
+}
