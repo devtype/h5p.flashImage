@@ -343,6 +343,17 @@ FlashImage.prototype._startFlash = function (fromRepeat) {
     self._announce(self.params.a11y.flashEnded);
     self._updateButtonAvailability();
   });
+  // Stage becomes visible inside flash(); resize after that layout change.
+  self._resize();
+};
+
+FlashImage.prototype._resize = function () {
+  const self = this;
+  self.trigger('resize');
+  // Second pass after the browser paints (image/answer layout can settle late).
+  window.requestAnimationFrame(() => {
+    self.trigger('resize');
+  });
 };
 
 FlashImage.prototype._applyPhaseUi = function () {
@@ -370,6 +381,8 @@ FlashImage.prototype._applyPhaseUi = function () {
     self.hideButton('show-solution');
     self.hideButton('try-again');
   }
+
+  self._resize();
 };
 
 FlashImage.prototype._updateButtonAvailability = function () {

@@ -57,7 +57,8 @@ export default class AnswerList {
       input.classList.add('h5p-flashimage__answer-input');
       input.addEventListener('change', () => self._onInputChange(originalIndex, input));
 
-      const text = document.createElement('span');
+      // Use a div: editor HTML often includes block tags (<p>) that are invalid in span.
+      const text = document.createElement('div');
       text.classList.add('h5p-flashimage__answer-text');
       text.innerHTML = answer.text || '';
 
