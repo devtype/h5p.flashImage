@@ -3,9 +3,11 @@ import AnswerList from './ui/answer-list.js';
 import StateService from './services/state.js';
 import XapiService from './services/xapi.js';
 import {
-  clampDurationMs,
   hasAnswerGiven,
   isSingleChoice,
+  normalizeOverallFeedbackRanges,
+  pickOverallFeedback,
+  resolveDisplayDurationMs,
   resolveMaxScore,
   resolveScore,
   shouldIncludeScoreInXapi,
@@ -17,10 +19,13 @@ const DEFAULTS = {
   flashimage: {
     file: null,
     alternativeText: '',
-    displayDurationMs: 1000
+    displayDurationSec: 1
   },
   question: '<p>What did you see?</p>',
   answers: [],
+  overallFeedback: {
+    overallFeedback: []
+  },
   behaviour: {
     allowRepeatFlash: true,
     enableCheckButton: true,
@@ -29,7 +34,9 @@ const DEFAULTS = {
     type: 'auto',
     singlePoint: true,
     randomAnswers: false,
-    maxScore: 1
+    maxScore: 1,
+    confirmCheckDialog: false,
+    confirmRetryDialog: false
   },
   l10n: {
     startFlash: 'Start image flash',
@@ -40,6 +47,18 @@ const DEFAULTS = {
     retry: 'Retry',
     scoreBarLabel: 'You got :num out of :total points',
     noAnswer: 'Please select an answer before checking.'
+  },
+  confirmCheck: {
+    header: 'Finish ?',
+    body: 'Are you sure you wish to finish ?',
+    cancelLabel: 'Cancel',
+    confirmLabel: 'Finish'
+  },
+  confirmRetry: {
+    header: 'Retry ?',
+    body: 'Are you sure you wish to retry ?',
+    cancelLabel: 'Cancel',
+    confirmLabel: 'Confirm'
   },
   a11y: {
     flashImageLabel: 'Flash image',
@@ -103,7 +122,7 @@ function FlashImage(params, contentId, extras) {
   self.extras = extras;
   self.previousState = extras.previousState || null;
 
-  self.durationMs = clampDurationMs(self.params.flashimage.displayDurationMs);
+  self.durationMs = resolveDisplayDurationMs(self.params.flashimage);
   self.singleChoice = isSingleChoice({
     type: self.params.behaviour.type,
     answers: self.params.answers
@@ -256,7 +275,13 @@ FlashImage.prototype._registerButtons = function () {
       () => self._onCheck(),
       false,
       { 'aria-label': l10n.checkAnswer },
-      {}
+      {
+        confirmationDialog: {
+          enable: !!behaviour.confirmCheckDialog,
+          l10n: self.params.confirmCheck,
+          instance: self
+        }
+      }
     );
   }
 
@@ -278,7 +303,13 @@ FlashImage.prototype._registerButtons = function () {
       () => self.resetTask(),
       false,
       { 'aria-label': l10n.retry },
-      {}
+      {
+        confirmationDialog: {
+          enable: !!behaviour.confirmRetryDialog,
+          l10n: self.params.confirmRetry,
+          instance: self
+        }
+      }
     );
   }
 };
@@ -303,16 +334,9 @@ FlashImage.prototype._restoreFromPreviousState = function () {
 
   if (self.state.submitted) {
     self.answerList.setDisabled(true);
-    if (self.state.solutionsShown) {
-      self.answerList.showSolutions(true);
-    }
+    self.answerList.showSolutions(true);
     self._toggleButtonsForSubmitted();
-    self.setFeedback(
-      self._scoreLabel(self.getScore(), self.getMaxScore()),
-      self.getScore(),
-      self.getMaxScore(),
-      self.params.l10n.scoreBarLabel
-    );
+    self._setScoreFeedback();
   }
 };
 
@@ -342,6 +366,7 @@ FlashImage.prototype._startFlash = function (fromRepeat) {
     self._applyPhaseUi();
     self._announce(self.params.a11y.flashEnded);
     self._updateButtonAvailability();
+    self._focusQuestion();
   });
   // Stage becomes visible inside flash(); resize after that layout change.
   self._resize();
@@ -353,6 +378,29 @@ FlashImage.prototype._resize = function () {
   // Second pass after the browser paints (image/answer layout can settle late).
   window.requestAnimationFrame(() => {
     self.trigger('resize');
+  });
+};
+
+FlashImage.prototype._focusQuestion = function () {
+  const self = this;
+  if (!self.questionPanel || self.questionPanel.hidden) {
+    return;
+  }
+  const firstInput = self.questionPanel.querySelector(
+    '.h5p-flashimage__answer-input:not([disabled])'
+  );
+  const target = firstInput || self.questionPanel;
+  if (target === self.questionPanel && !self.questionPanel.hasAttribute('tabindex')) {
+    self.questionPanel.setAttribute('tabindex', '-1');
+  }
+  window.requestAnimationFrame(() => {
+    try {
+      target.focus({ preventScroll: true });
+    }
+    catch {
+      // Older browsers may not support focus options.
+      target.focus();
+    }
   });
 };
 
@@ -400,6 +448,33 @@ FlashImage.prototype._updateButtonAvailability = function () {
   }
 };
 
+FlashImage.prototype._feedbackText = function (score, maxScore) {
+  const self = this;
+  const ratio = maxScore > 0 ? score / maxScore : 0;
+  const ranges = normalizeOverallFeedbackRanges(self.params.overallFeedback);
+  let text = '';
+  if (typeof H5P !== 'undefined' && H5P.Question
+    && typeof H5P.Question.determineOverallFeedback === 'function') {
+    text = H5P.Question.determineOverallFeedback(ranges, ratio) || '';
+  }
+  else {
+    text = pickOverallFeedback(ranges, ratio);
+  }
+  return text;
+};
+
+FlashImage.prototype._setScoreFeedback = function () {
+  const self = this;
+  const score = self.getScore();
+  const maxScore = self.getMaxScore();
+  self.setFeedback(
+    self._feedbackText(score, maxScore),
+    score,
+    maxScore,
+    self.params.l10n.scoreBarLabel
+  );
+};
+
 FlashImage.prototype._onCheck = function () {
   const self = this;
   if (self.state.phase !== 'question' || self.state.submitted) {
@@ -412,19 +487,14 @@ FlashImage.prototype._onCheck = function () {
 
   self.state.submitted = true;
   self.answerList.setDisabled(true);
+  // Mark correct/wrong immediately on check (MultiChoice parity).
+  self.answerList.showSolutions(true);
+  self.state.solutionsShown = true;
   if (self.repeatButton) {
     self.repeatButton.hidden = true;
   }
 
-  const score = self.getScore();
-  const maxScore = self.getMaxScore();
-  self.setFeedback(
-    self._scoreLabel(score, maxScore),
-    score,
-    maxScore,
-    self.params.l10n.scoreBarLabel
-  );
-
+  self._setScoreFeedback();
   self._toggleButtonsForSubmitted();
   self.triggerXAPIAnswered();
 };

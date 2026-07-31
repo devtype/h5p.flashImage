@@ -5,6 +5,9 @@
 export const MIN_DURATION_MS = 100;
 export const MAX_DURATION_MS = 10000;
 export const DEFAULT_DURATION_MS = 1000;
+export const MIN_DURATION_SEC = 0.1;
+export const MAX_DURATION_SEC = 10;
+export const DEFAULT_DURATION_SEC = 1;
 
 /**
  * Clamp display duration to the MVP-allowed range.
@@ -18,6 +21,123 @@ export function clampDurationMs(value) {
     return DEFAULT_DURATION_MS;
   }
   return Math.min(MAX_DURATION_MS, Math.max(MIN_DURATION_MS, Math.round(n)));
+}
+
+/**
+ * Convert authored seconds to clamped milliseconds.
+ *
+ * @param {number|string|null|undefined} seconds
+ * @returns {number}
+ */
+export function durationSecToMs(seconds) {
+  const n = Number(seconds);
+  if (!Number.isFinite(n)) {
+    return DEFAULT_DURATION_MS;
+  }
+  return clampDurationMs(n * 1000);
+}
+
+/**
+ * Resolve flash duration from flashimage params.
+ * Prefers displayDurationSec; falls back to legacy displayDurationMs.
+ *
+ * @param {object|null|undefined} flashimage
+ * @returns {number}
+ */
+export function resolveDisplayDurationMs(flashimage) {
+  const fi = flashimage || {};
+  if (fi.displayDurationSec !== undefined && fi.displayDurationSec !== null
+    && fi.displayDurationSec !== '') {
+    return durationSecToMs(fi.displayDurationSec);
+  }
+  if (fi.displayDurationMs !== undefined && fi.displayDurationMs !== null
+    && fi.displayDurationMs !== '') {
+    return clampDurationMs(fi.displayDurationMs);
+  }
+  return DEFAULT_DURATION_MS;
+}
+
+/**
+ * Migrate legacy displayDurationMs to displayDurationSec on a flashimage object.
+ * Mutates and returns the object for upgrades.js / tests.
+ *
+ * @param {object|null|undefined} flashimage
+ * @returns {object|null|undefined}
+ */
+export function migrateDurationParams(flashimage) {
+  if (!flashimage || typeof flashimage !== 'object') {
+    return flashimage;
+  }
+  if (flashimage.displayDurationSec !== undefined && flashimage.displayDurationSec !== null) {
+    if (flashimage.displayDurationMs !== undefined) {
+      delete flashimage.displayDurationMs;
+    }
+    return flashimage;
+  }
+  if (flashimage.displayDurationMs !== undefined && flashimage.displayDurationMs !== null
+    && flashimage.displayDurationMs !== '') {
+    const ms = Number(flashimage.displayDurationMs);
+    if (Number.isFinite(ms)) {
+      flashimage.displayDurationSec = Math.round((ms / 1000) * 10) / 10;
+    }
+    delete flashimage.displayDurationMs;
+  }
+  return flashimage;
+}
+
+/**
+ * Whether at least one answer option is marked correct.
+ *
+ * @param {Array<{correct?: boolean}>|null|undefined} answers
+ * @returns {boolean}
+ */
+export function hasAtLeastOneCorrect(answers) {
+  return Array.isArray(answers) && answers.some((a) => a && a.correct);
+}
+
+/**
+ * Normalize overallFeedback params to a range list.
+ * Accepts either a bare array or the semantics group `{ overallFeedback: [] }`.
+ *
+ * @param {Array|{overallFeedback?: Array}|null|undefined} value
+ * @returns {Array<{from?: number, to?: number, feedback?: string}>}
+ */
+export function normalizeOverallFeedbackRanges(value) {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (value && Array.isArray(value.overallFeedback)) {
+    return value.overallFeedback;
+  }
+  return [];
+}
+
+/**
+ * Pick overall feedback text for a score ratio (0–1).
+ * Mirrors H5P.Question.determineOverallFeedback for unit testing.
+ *
+ * @param {Array|{overallFeedback?: Array}|null|undefined} ranges
+ * @param {number} scoreRatio
+ * @returns {string}
+ */
+export function pickOverallFeedback(ranges, scoreRatio) {
+  const list = normalizeOverallFeedbackRanges(ranges);
+  const pct = Math.floor(Number(scoreRatio) * 100);
+  if (!Number.isFinite(pct)) {
+    return '';
+  }
+  for (let i = 0; i < list.length; i++) {
+    const feedback = list[i];
+    if (!feedback) {
+      continue;
+    }
+    const text = feedback.feedback;
+    const hasFeedback = text !== undefined && String(text).trim().length !== 0;
+    if (feedback.from <= pct && feedback.to >= pct && hasFeedback) {
+      return String(text);
+    }
+  }
+  return '';
 }
 
 /**

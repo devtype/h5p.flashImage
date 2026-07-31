@@ -6,6 +6,7 @@ H5PUpgrades['H5P.FlashImage'] = {
     /**
      * Move flash settings out of deprecated `media` / interim `flash` group names.
      * MMS marks semantics groups named `media` as deprecated/hidden.
+     * Also migrate displayDurationMs → displayDurationSec when present.
      *
      * @param {object} parameters
      * @param {function} finished
@@ -34,7 +35,34 @@ H5PUpgrades['H5P.FlashImage'] = {
         parameters.flashimage = source;
       }
 
+      if (parameters.flashimage) {
+        migrateDurationToSeconds(parameters.flashimage);
+      }
+
       finished(null, parameters, extras);
     }
   }
 };
+
+/**
+ * @param {object} flashimage
+ */
+function migrateDurationToSeconds(flashimage) {
+  if (!flashimage || typeof flashimage !== 'object') {
+    return;
+  }
+  if (flashimage.displayDurationSec !== undefined && flashimage.displayDurationSec !== null) {
+    if (flashimage.displayDurationMs !== undefined) {
+      delete flashimage.displayDurationMs;
+    }
+    return;
+  }
+  if (flashimage.displayDurationMs !== undefined && flashimage.displayDurationMs !== null
+    && flashimage.displayDurationMs !== '') {
+    var ms = Number(flashimage.displayDurationMs);
+    if (isFinite(ms)) {
+      flashimage.displayDurationSec = Math.round((ms / 1000) * 10) / 10;
+    }
+    delete flashimage.displayDurationMs;
+  }
+}

@@ -13,11 +13,11 @@
         },
         {
           "label": "Alternativtext",
-          "description": "Beschreibt das Blitzbild für Screenreader."
+          "description": "Beschreibt das Blitzbild für Screenreader. Dringend empfohlen, wenn das Bild für die Aufgabe bedeutsam ist."
         },
         {
-          "label": "Anzeigedauer (ms)",
-          "description": "Wie lange das Bild nach dem Start sichtbar bleibt. Zulässiger Bereich: 100–10000 Millisekunden."
+          "label": "Anzeigedauer (Sekunden)",
+          "description": "Wie lange das Bild nach dem Start sichtbar bleibt. Zulässiger Bereich: 0,1–10 Sekunden."
         }
       ]
     },
@@ -36,6 +36,26 @@
           { "label": "Richtig" }
         ]
       }
+    },
+    {
+      "label": "Gesamtfeedback",
+      "fields": [
+        {
+          "label": "Eigenes Feedback für Punktbereiche festlegen",
+          "description": "Klicke auf „Bereich hinzufügen“, um so viele Bereiche wie nötig anzulegen. Beispiel: 0–20 % schwaches Ergebnis, 21–91 % durchschnittlich, 91–100 % sehr gut!",
+          "entity": "Bereich",
+          "field": {
+            "fields": [
+              { "label": "Punktbereich" },
+              {},
+              {
+                "label": "Feedback für den festgelegten Punktbereich",
+                "placeholder": "Feedback eingeben"
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "label": "Verhalten",
@@ -64,7 +84,9 @@
         {
           "label": "Maximale Punktzahl",
           "description": "Wird verwendet, wenn „Einen Punkt für die gesamte Aufgabe vergeben“ deaktiviert ist. Im Ein-Punkt-Modus beträgt die effektive Maximalpunktzahl 1."
-        }
+        },
+        { "label": "Bestätigungsdialog bei „Überprüfen“ anzeigen" },
+        { "label": "Bestätigungsdialog bei „Erneut versuchen“ anzeigen" }
       ]
     },
     {
@@ -85,6 +107,24 @@
           "label": "Keine Antwort ausgewählt",
           "default": "Bitte wähle eine Antwort aus, bevor du überprüfst."
         }
+      ]
+    },
+    {
+      "label": "Bestätigungsdialog „Überprüfen“",
+      "fields": [
+        { "label": "Überschrift", "default": "Abschließen?" },
+        { "label": "Text", "default": "Möchtest du wirklich abschließen?" },
+        { "label": "Beschriftung Abbrechen", "default": "Abbrechen" },
+        { "label": "Beschriftung Bestätigen", "default": "Abschließen" }
+      ]
+    },
+    {
+      "label": "Bestätigungsdialog „Erneut versuchen“",
+      "fields": [
+        { "label": "Überschrift", "default": "Erneut versuchen?" },
+        { "label": "Text", "default": "Möchtest du wirklich erneut versuchen?" },
+        { "label": "Beschriftung Abbrechen", "default": "Abbrechen" },
+        { "label": "Beschriftung Bestätigen", "default": "Bestätigen" }
       ]
     },
     {

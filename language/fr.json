@@ -13,11 +13,11 @@
         },
         {
           "label": "Texte alternatif",
-          "description": "Décrit l’image flash pour les lecteurs d’écran."
+          "description": "Décrit l’image flash pour les lecteurs d’écran. Fortement recommandé lorsque l’image porte le sens de la tâche."
         },
         {
-          "label": "Durée d’affichage (ms)",
-          "description": "Durée pendant laquelle l’image reste visible après le démarrage. Plage autorisée : 100–10000 millisecondes."
+          "label": "Durée d’affichage (secondes)",
+          "description": "Durée pendant laquelle l’image reste visible après le démarrage. Plage autorisée : 0,1–10 secondes."
         }
       ]
     },
@@ -36,6 +36,26 @@
           { "label": "Correcte" }
         ]
       }
+    },
+    {
+      "label": "Feedback global",
+      "fields": [
+        {
+          "label": "Définir un feedback personnalisé pour chaque plage de score",
+          "description": "Cliquez sur « Ajouter une plage » pour en ajouter autant que nécessaire. Exemple : 0-20 % score faible, 21-91 % moyen, 91-100 % excellent !",
+          "entity": "plage",
+          "field": {
+            "fields": [
+              { "label": "Plage de score" },
+              {},
+              {
+                "label": "Feedback pour la plage définie",
+                "placeholder": "Saisir le feedback"
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "label": "Paramètres de comportement",
@@ -64,7 +84,9 @@
         {
           "label": "Score maximal",
           "description": "Utilisé lorsque « Attribuer un point pour toute la tâche » est désactivé. En mode un point, le score max effectif est 1."
-        }
+        },
+        { "label": "Afficher une boîte de confirmation pour « Vérifier »" },
+        { "label": "Afficher une boîte de confirmation pour « Réessayer »" }
       ]
     },
     {
@@ -85,6 +107,24 @@
           "label": "Aucune réponse sélectionnée",
           "default": "Veuillez sélectionner une réponse avant de vérifier."
         }
+      ]
+    },
+    {
+      "label": "Boîte de confirmation « Vérifier »",
+      "fields": [
+        { "label": "Titre", "default": "Terminer ?" },
+        { "label": "Texte", "default": "Voulez-vous vraiment terminer ?" },
+        { "label": "Libellé Annuler", "default": "Annuler" },
+        { "label": "Libellé Confirmer", "default": "Terminer" }
+      ]
+    },
+    {
+      "label": "Boîte de confirmation « Réessayer »",
+      "fields": [
+        { "label": "Titre", "default": "Réessayer ?" },
+        { "label": "Texte", "default": "Voulez-vous vraiment réessayer ?" },
+        { "label": "Libellé Annuler", "default": "Annuler" },
+        { "label": "Libellé Confirmer", "default": "Confirmer" }
       ]
     },
     {

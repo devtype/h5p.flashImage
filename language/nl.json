@@ -13,11 +13,11 @@
         },
         {
           "label": "Alternatieve tekst",
-          "description": "Beschrijft het flitsbeeld voor schermlezers."
+          "description": "Beschrijft het flitsbeeld voor schermlezers. Sterk aanbevolen wanneer de afbeelding betekenis heeft voor de taak."
         },
         {
-          "label": "Weergaveduur (ms)",
-          "description": "Hoe lang de afbeelding zichtbaar blijft na de start. Toegestaan bereik: 100–10000 milliseconden."
+          "label": "Weergaveduur (seconden)",
+          "description": "Hoe lang de afbeelding zichtbaar blijft na de start. Toegestaan bereik: 0,1–10 seconden."
         }
       ]
     },
@@ -36,6 +36,26 @@
           { "label": "Correct" }
         ]
       }
+    },
+    {
+      "label": "Algemene feedback",
+      "fields": [
+        {
+          "label": "Aangepaste feedback voor scorebereiken definiëren",
+          "description": "Klik op „Bereik toevoegen” om zoveel bereiken toe te voegen als nodig. Voorbeeld: 0-20% lage score, 21-91% gemiddeld, 91-100% uitstekend!",
+          "entity": "bereik",
+          "field": {
+            "fields": [
+              { "label": "Scorebereik" },
+              {},
+              {
+                "label": "Feedback voor het gedefinieerde scorebereik",
+                "placeholder": "Feedback invullen"
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "label": "Gedragsinstellingen",
@@ -64,7 +84,9 @@
         {
           "label": "Maximale score",
           "description": "Gebruikt wanneer „Eén punt voor de hele taak” is uitgeschakeld. In één-puntmodus is de effectieve max-score 1."
-        }
+        },
+        { "label": "Bevestigingsdialoog tonen bij „Controleren”" },
+        { "label": "Bevestigingsdialoog tonen bij „Opnieuw”" }
       ]
     },
     {
@@ -85,6 +107,24 @@
           "label": "Geen antwoord geselecteerd",
           "default": "Selecteer een antwoord voordat je controleert."
         }
+      ]
+    },
+    {
+      "label": "Bevestigingsdialoog „Controleren”",
+      "fields": [
+        { "label": "Koptekst", "default": "Afronden?" },
+        { "label": "Tekst", "default": "Weet je zeker dat je wilt afronden?" },
+        { "label": "Label Annuleren", "default": "Annuleren" },
+        { "label": "Label Bevestigen", "default": "Afronden" }
+      ]
+    },
+    {
+      "label": "Bevestigingsdialoog „Opnieuw”",
+      "fields": [
+        { "label": "Koptekst", "default": "Opnieuw?" },
+        { "label": "Tekst", "default": "Weet je zeker dat je opnieuw wilt beginnen?" },
+        { "label": "Label Annuleren", "default": "Annuleren" },
+        { "label": "Label Bevestigen", "default": "Bevestigen" }
       ]
     },
     {

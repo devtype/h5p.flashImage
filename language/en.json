@@ -13,11 +13,11 @@
         },
         {
           "label": "Alternative text",
-          "description": "Describes the flash image for screen reader users."
+          "description": "Describe the flash image for screen reader users. Strongly recommended whenever the image carries meaning for the task."
         },
         {
-          "label": "Display duration (ms)",
-          "description": "How long the image stays visible after start. Allowed range: 100–10000 milliseconds."
+          "label": "Display duration (seconds)",
+          "description": "How long the image stays visible after start. Allowed range: 0.1–10 seconds."
         }
       ]
     },
@@ -36,6 +36,26 @@
           { "label": "Correct" }
         ]
       }
+    },
+    {
+      "label": "Overall Feedback",
+      "fields": [
+        {
+          "label": "Define custom feedback for any score range",
+          "description": "Click the \"Add range\" button to add as many ranges as you need. Example: 0-20% Bad score, 21-91% Average Score, 91-100% Great Score!",
+          "entity": "range",
+          "field": {
+            "fields": [
+              { "label": "Score Range" },
+              {},
+              {
+                "label": "Feedback for defined score range",
+                "placeholder": "Fill in the feedback"
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "label": "Behavioural settings",
@@ -64,7 +84,9 @@
         {
           "label": "Maximum score",
           "description": "Used when \"Give one point for the whole task\" is disabled. With single-point mode the effective max score is 1."
-        }
+        },
+        { "label": "Show confirmation dialog on \"Check\"" },
+        { "label": "Show confirmation dialog on \"Retry\"" }
       ]
     },
     {
@@ -85,6 +107,24 @@
           "label": "No answer selected",
           "default": "Please select an answer before checking."
         }
+      ]
+    },
+    {
+      "label": "Check confirmation dialog",
+      "fields": [
+        { "label": "Header text", "default": "Finish ?" },
+        { "label": "Body text", "default": "Are you sure you wish to finish ?" },
+        { "label": "Cancel button label", "default": "Cancel" },
+        { "label": "Confirm button label", "default": "Finish" }
+      ]
+    },
+    {
+      "label": "Retry confirmation dialog",
+      "fields": [
+        { "label": "Header text", "default": "Retry ?" },
+        { "label": "Body text", "default": "Are you sure you wish to retry ?" },
+        { "label": "Cancel button label", "default": "Cancel" },
+        { "label": "Confirm button label", "default": "Confirm" }
       ]
     },
     {

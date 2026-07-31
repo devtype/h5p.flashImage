@@ -13,11 +13,11 @@
         },
         {
           "label": "Texto alternativo",
-          "description": "Describe la imagen flash para lectores de pantalla."
+          "description": "Describe la imagen flash para lectores de pantalla. Muy recomendable cuando la imagen aporta el significado de la tarea."
         },
         {
-          "label": "Duración de visualización (ms)",
-          "description": "Cuánto tiempo permanece visible la imagen tras el inicio. Rango permitido: 100–10000 milisegundos."
+          "label": "Duración de visualización (segundos)",
+          "description": "Cuánto tiempo permanece visible la imagen tras el inicio. Rango permitido: 0,1–10 segundos."
         }
       ]
     },
@@ -36,6 +36,26 @@
           { "label": "Correcta" }
         ]
       }
+    },
+    {
+      "label": "Retroalimentación general",
+      "fields": [
+        {
+          "label": "Definir retroalimentación personalizada para rangos de puntuación",
+          "description": "Haz clic en «Añadir rango» para añadir tantos rangos como necesites. Ejemplo: 0-20 % puntuación baja, 21-91 % media, 91-100 % excelente.",
+          "entity": "rango",
+          "field": {
+            "fields": [
+              { "label": "Rango de puntuación" },
+              {},
+              {
+                "label": "Retroalimentación para el rango definido",
+                "placeholder": "Escribe la retroalimentación"
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "label": "Ajustes de comportamiento",
@@ -64,7 +84,9 @@
         {
           "label": "Puntuación máxima",
           "description": "Se usa cuando «Dar un punto por toda la tarea» está desactivado. En modo de un punto, el máximo efectivo es 1."
-        }
+        },
+        { "label": "Mostrar diálogo de confirmación en «Comprobar»" },
+        { "label": "Mostrar diálogo de confirmación en «Reintentar»" }
       ]
     },
     {
@@ -85,6 +107,24 @@
           "label": "Ninguna respuesta seleccionada",
           "default": "Selecciona una respuesta antes de comprobar."
         }
+      ]
+    },
+    {
+      "label": "Diálogo de confirmación «Comprobar»",
+      "fields": [
+        { "label": "Texto del encabezado", "default": "¿Finalizar?" },
+        { "label": "Texto del cuerpo", "default": "¿Seguro que deseas finalizar?" },
+        { "label": "Etiqueta Cancelar", "default": "Cancelar" },
+        { "label": "Etiqueta Confirmar", "default": "Finalizar" }
+      ]
+    },
+    {
+      "label": "Diálogo de confirmación «Reintentar»",
+      "fields": [
+        { "label": "Texto del encabezado", "default": "¿Reintentar?" },
+        { "label": "Texto del cuerpo", "default": "¿Seguro que deseas reintentar?" },
+        { "label": "Etiqueta Cancelar", "default": "Cancelar" },
+        { "label": "Etiqueta Confirmar", "default": "Confirmar" }
       ]
     },
     {

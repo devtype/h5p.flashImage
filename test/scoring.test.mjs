@@ -2,15 +2,22 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   clampDurationMs,
+  durationSecToMs,
   hasAnswerGiven,
+  hasAtLeastOneCorrect,
   isSingleChoice,
+  migrateDurationParams,
+  normalizeOverallFeedbackRanges,
+  pickOverallFeedback,
+  resolveDisplayDurationMs,
   resolveMaxScore,
   resolveScore,
   shouldIncludeScoreInXapi,
   shuffledIndexes,
   MIN_DURATION_MS,
   MAX_DURATION_MS,
-  DEFAULT_DURATION_MS
+  DEFAULT_DURATION_MS,
+  DEFAULT_DURATION_SEC
 } from '../src/scripts/services/scoring.js';
 
 describe('clampDurationMs', () => {
@@ -123,5 +130,74 @@ describe('shuffledIndexes', () => {
   it('returns a permutation of 0..n-1', () => {
     const result = shuffledIndexes(4, () => 0);
     assert.deepEqual([...result].sort((a, b) => a - b), [0, 1, 2, 3]);
+  });
+});
+
+describe('durationSecToMs / resolveDisplayDurationMs', () => {
+  it('converts seconds to clamped milliseconds', () => {
+    assert.equal(durationSecToMs(DEFAULT_DURATION_SEC), DEFAULT_DURATION_MS);
+    assert.equal(durationSecToMs(0.1), MIN_DURATION_MS);
+    assert.equal(durationSecToMs(10), MAX_DURATION_MS);
+    assert.equal(durationSecToMs(1.5), 1500);
+  });
+
+  it('prefers displayDurationSec over legacy ms', () => {
+    assert.equal(resolveDisplayDurationMs({
+      displayDurationSec: 2,
+      displayDurationMs: 500
+    }), 2000);
+  });
+
+  it('falls back to legacy displayDurationMs', () => {
+    assert.equal(resolveDisplayDurationMs({ displayDurationMs: 750 }), 750);
+    assert.equal(resolveDisplayDurationMs({}), DEFAULT_DURATION_MS);
+  });
+});
+
+describe('migrateDurationParams', () => {
+  it('converts ms to seconds and removes legacy key', () => {
+    const fi = { displayDurationMs: 1500 };
+    migrateDurationParams(fi);
+    assert.equal(fi.displayDurationSec, 1.5);
+    assert.equal(fi.displayDurationMs, undefined);
+  });
+
+  it('keeps existing seconds and drops ms', () => {
+    const fi = { displayDurationSec: 2, displayDurationMs: 999 };
+    migrateDurationParams(fi);
+    assert.equal(fi.displayDurationSec, 2);
+    assert.equal(fi.displayDurationMs, undefined);
+  });
+});
+
+describe('hasAtLeastOneCorrect', () => {
+  it('requires at least one correct flag', () => {
+    assert.equal(hasAtLeastOneCorrect([]), false);
+    assert.equal(hasAtLeastOneCorrect([{ correct: false }, { correct: false }]), false);
+    assert.equal(hasAtLeastOneCorrect([{ correct: false }, { correct: true }]), true);
+    assert.equal(hasAtLeastOneCorrect(null), false);
+  });
+});
+
+describe('overallFeedback helpers', () => {
+  it('normalizes group or bare array', () => {
+    assert.deepEqual(normalizeOverallFeedbackRanges([{ from: 0, to: 100 }]), [
+      { from: 0, to: 100 }
+    ]);
+    assert.deepEqual(normalizeOverallFeedbackRanges({
+      overallFeedback: [{ from: 0, to: 50, feedback: 'Low' }]
+    }), [{ from: 0, to: 50, feedback: 'Low' }]);
+    assert.deepEqual(normalizeOverallFeedbackRanges(null), []);
+  });
+
+  it('picks matching feedback by score ratio', () => {
+    const ranges = [
+      { from: 0, to: 49, feedback: 'Low' },
+      { from: 50, to: 100, feedback: 'High' }
+    ];
+    assert.equal(pickOverallFeedback(ranges, 0), 'Low');
+    assert.equal(pickOverallFeedback(ranges, 1), 'High');
+    assert.equal(pickOverallFeedback(ranges, 0.5), 'High');
+    assert.equal(pickOverallFeedback({ overallFeedback: ranges }, 0.2), 'Low');
   });
 });

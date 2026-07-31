@@ -1,0 +1,14 @@
+{
+  "title": "Flash Image Editor",
+  "description": "Editor widgets for H5P.FlashImage (Bilderblitzen).",
+  "machineName": "H5PEditor.FlashImage",
+  "majorVersion": 1,
+  "minorVersion": 0,
+  "patchVersion": 0,
+  "runnable": 0,
+  "author": "devtype",
+  "license": "MIT",
+  "preloadedJs": [
+    { "path": "scripts/flashimage-answers.js" }
+  ]
+}

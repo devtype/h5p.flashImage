@@ -4,14 +4,16 @@ Timed image-flash question type for H5P. Learners deliberately start a flash of 
 
 ## Features
 
-- Editorial image, alternative text, and display duration (100–10000 ms)
+- Editorial image, alternative text, and display duration (0.1–10 seconds)
 - Optional introduction text before start
 - Image preloaded before **Start image flash** is enabled
 - During the flash, only the image is shown
 - Built-in single- or multiple-choice answers (no nested MultiChoice library)
+- Editor requires at least one correct answer
+- Optional overall feedback by score range; optional Check/Retry confirm dialogs
 - Optional **Show image again** control while answering
-- Check / show solution / retry via `H5P.Question`
-- Keyboard-focusable controls; iPad-friendly layout
+- Check / show solution / retry via `H5P.Question` (enabled by default)
+- Keyboard-focusable controls; focus moves to answers after the flash
 - xAPI `answered` statements with `interactionType: choice`
 - Locales: `en`, `de`, `fr`, `es`, `nl`
 
