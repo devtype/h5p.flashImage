@@ -2,8 +2,6 @@
 
 Timed image-flash question type for H5P. Learners deliberately start a flash of an authored image for a configured duration; the image then hides and a built-in choice question appears.
 
-Implements [UD-2430](https://cornelsen-verlag.atlassian.net/browse/UD-2430).
-
 ## Features
 
 - Editorial image, alternative text, and display duration (100–10000 ms)

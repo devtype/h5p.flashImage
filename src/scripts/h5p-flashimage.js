@@ -14,8 +14,8 @@ import {
 
 const DEFAULTS = {
   intro: '',
-  media: {
-    flashImage: null,
+  flashimage: {
+    file: null,
     alternativeText: '',
     displayDurationMs: 1000
   },
@@ -97,7 +97,7 @@ function FlashImage(params, contentId, extras) {
   self.extras = extras;
   self.previousState = extras.previousState || null;
 
-  self.durationMs = clampDurationMs(self.params.media.displayDurationMs);
+  self.durationMs = clampDurationMs(self.params.flashimage.displayDurationMs);
   self.singleChoice = isSingleChoice({
     type: self.params.behaviour.type,
     answers: self.params.answers
@@ -168,8 +168,8 @@ FlashImage.prototype.registerDomElements = function () {
 
   self.flashStage = new FlashStage({
     contentId: self.contentId,
-    image: self.params.media.flashImage,
-    alternativeText: self.params.media.alternativeText || '',
+    image: self.params.flashimage.file,
+    alternativeText: self.params.flashimage.alternativeText || '',
     regionLabel: a11y.flashImageLabel,
     loadingLabel: l10n.loading
   });
@@ -214,7 +214,7 @@ FlashImage.prototype.registerDomElements = function () {
   self._registerButtons();
 
   self.flashStage.preload().then((ok) => {
-    self.state.imageReady = !!ok || !self.params.media.flashImage;
+    self.state.imageReady = !!ok || !self.params.flashimage.file;
     self.startButton.disabled = false;
     self.loadingNote.hidden = true;
     if (self.previousState) {
@@ -305,7 +305,7 @@ FlashImage.prototype._restoreFromPreviousState = function () {
  */
 FlashImage.prototype._startFlash = function (fromRepeat) {
   const self = this;
-  if (!self.state.imageReady && self.params.media.flashImage) {
+  if (!self.state.imageReady && self.params.flashimage.file) {
     return;
   }
   if (self.state.phase === 'flashing') {

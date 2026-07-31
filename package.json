@@ -1,6 +1,6 @@
 {
   "name": "h5p-flashimage",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "H5P question content type for timed image flash (Bilderblitzen) followed by a built-in choice question",
   "private": true,
   "license": "MIT",

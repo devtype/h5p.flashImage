@@ -23,14 +23,14 @@
     ]
   },
   {
-    "name": "media",
+    "name": "flashimage",
     "type": "group",
     "label": "Flash image",
     "importance": "high",
     "expanded": true,
     "fields": [
       {
-        "name": "flashImage",
+        "name": "file",
         "type": "image",
         "label": "Image",
         "description": "Image shown briefly after the learner starts the flash.",
