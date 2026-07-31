@@ -93,6 +93,12 @@ function FlashImage(params, contentId, extras) {
   if (!Array.isArray(self.params.answers)) {
     self.params.answers = [];
   }
+  if (!self.params.flashimage || typeof self.params.flashimage !== 'object') {
+    self.params.flashimage = { ...DEFAULTS.flashimage };
+  }
+  if (!self.params.behaviour || typeof self.params.behaviour !== 'object') {
+    self.params.behaviour = { ...DEFAULTS.behaviour };
+  }
   self.contentId = contentId;
   self.extras = extras;
   self.previousState = extras.previousState || null;
@@ -117,7 +123,7 @@ function FlashImage(params, contentId, extras) {
     selectedIndexes: restored.selectedIndexes,
     submitted: restored.submitted,
     solutionsShown: restored.solutionsShown,
-    imageReady: false
+    preloadDone: false
   };
 
   self.flashStage = null;
@@ -210,21 +216,30 @@ FlashImage.prototype.registerDomElements = function () {
   self.wrapper.appendChild(self.flashStage.getElement());
   self.wrapper.appendChild(self.questionPanel);
 
-  self.setContent(self.wrapper);
+  // jQuery wrap so H5P.Question.register uses append() for the DOM node.
+  self.setContent(H5P.jQuery ? H5P.jQuery(self.wrapper) : self.wrapper);
   self._registerButtons();
+  self._applyPhaseUi();
 
-  self.flashStage.preload().then((ok) => {
-    self.state.imageReady = !!ok || !self.params.flashimage.file;
+  self.flashStage.preload().then(() => {
+    self.state.preloadDone = true;
+    self.state.phase = self.state.phase === 'loading' ? 'ready' : self.state.phase;
     self.startButton.disabled = false;
     self.loadingNote.hidden = true;
     if (self.previousState) {
       self._restoreFromPreviousState();
     }
     else {
-      self.state.phase = 'ready';
       self._applyPhaseUi();
     }
     self._updateButtonAvailability();
+  }).catch(() => {
+    // Preload helpers always settle; keep UI usable if anything unexpected throws.
+    self.state.preloadDone = true;
+    self.state.phase = 'ready';
+    self.startButton.disabled = false;
+    self.loadingNote.hidden = true;
+    self._applyPhaseUi();
   });
 };
 
@@ -305,7 +320,7 @@ FlashImage.prototype._restoreFromPreviousState = function () {
  */
 FlashImage.prototype._startFlash = function (fromRepeat) {
   const self = this;
-  if (!self.state.imageReady && self.params.flashimage.file) {
+  if (!self.state.preloadDone) {
     return;
   }
   if (self.state.phase === 'flashing') {
@@ -319,6 +334,8 @@ FlashImage.prototype._startFlash = function (fromRepeat) {
   self._applyPhaseUi();
   self._announce(self.params.a11y.flashStarted);
 
+  // Always advance to the question after the configured duration, even if the
+  // image failed to load (otherwise Start appears clickable but does nothing).
   self.flashStage.flash(self.durationMs, () => {
     self.state.phase = 'question';
     self._applyPhaseUi();

@@ -2,6 +2,29 @@
  * Preloads and displays the flash image for a timed interval.
  */
 
+const PRELOAD_TIMEOUT_MS = 8000;
+
+/**
+ * Resolve a usable image URL from H5P / Drupal media image params.
+ *
+ * @param {object|null} image
+ * @param {number} contentId
+ * @returns {string}
+ */
+export function resolveImageSrc(image, contentId) {
+  if (!image || !image.path) {
+    return '';
+  }
+  const path = String(image.path);
+  if (/^[a-z]+:\/\//i.test(path) || path.startsWith('//') || path.startsWith('data:')) {
+    return path;
+  }
+  if (typeof H5P !== 'undefined' && typeof H5P.getPath === 'function') {
+    return H5P.getPath(path, contentId) || path;
+  }
+  return path;
+}
+
 export default class FlashStage {
   /**
    * @param {object} options
@@ -21,6 +44,7 @@ export default class FlashStage {
     this._timerId = null;
     this._ready = false;
     this._visible = false;
+    this._src = '';
 
     this.root = document.createElement('div');
     this.root.classList.add('h5p-flashimage__stage');
@@ -36,6 +60,7 @@ export default class FlashStage {
     this.img = document.createElement('img');
     this.img.classList.add('h5p-flashimage__image');
     this.img.alt = this.alternativeText;
+    this.img.decoding = 'async';
     this.img.hidden = true;
     this.root.appendChild(this.img);
   }
@@ -55,36 +80,41 @@ export default class FlashStage {
   }
 
   /**
-   * Preload the image. Resolves when decode/load completes or fails.
+   * Whether an image source is configured.
+   *
+   * @returns {boolean}
+   */
+  hasImage() {
+    return !!resolveImageSrc(this.image, this.contentId);
+  }
+
+  /**
+   * Preload the image. Always settles (success, failure, or timeout).
    *
    * @returns {Promise<boolean>} true when an image URL was loaded successfully
    */
   preload() {
     const self = this;
-    if (!self.image || !self.image.path) {
+    self._src = resolveImageSrc(self.image, self.contentId);
+
+    if (!self._src) {
       self._ready = true;
       self.statusEl.hidden = true;
       return Promise.resolve(false);
     }
 
-    const src = H5P.getPath(self.image.path, self.contentId);
-    self.img.src = src;
+    self.img.src = self._src;
 
-    const done = (ok) => {
+    return Promise.race([
+      self._waitForLoad(),
+      new Promise((resolve) => {
+        window.setTimeout(() => resolve(false), PRELOAD_TIMEOUT_MS);
+      })
+    ]).then((ok) => {
       self._ready = true;
       self.statusEl.hidden = true;
-      return ok;
-    };
-
-    if (typeof self.img.decode === 'function') {
-      return self.img.decode()
-        .then(() => done(true))
-        .catch(() => {
-          // decode can fail for some formats; fall back to load/error events
-          return self._waitForLoad().then(done);
-        });
-    }
-    return self._waitForLoad().then(done);
+      return !!ok;
+    });
   }
 
   /**
@@ -92,13 +122,16 @@ export default class FlashStage {
    */
   _waitForLoad() {
     const self = this;
-    if (self.img.complete && self.img.naturalWidth > 0) {
-      return Promise.resolve(true);
+
+    // Cached success or failure: complete is true and events will not re-fire.
+    if (self.img.complete) {
+      return Promise.resolve(self.img.naturalWidth > 0);
     }
+
     return new Promise((resolve) => {
       const onLoad = () => {
         cleanup();
-        resolve(true);
+        resolve(self.img.naturalWidth > 0);
       };
       const onError = () => {
         cleanup();
@@ -115,6 +148,7 @@ export default class FlashStage {
 
   /**
    * Show the image for durationMs, then hide and invoke onComplete.
+   * If the image is missing/broken, still waits the duration so the flow continues.
    *
    * @param {number} durationMs
    * @param {() => void} onComplete
@@ -123,7 +157,9 @@ export default class FlashStage {
     const self = this;
     self.clearTimer();
     self.root.hidden = false;
-    self.img.hidden = false;
+
+    const showImage = self._src && self.img.naturalWidth > 0;
+    self.img.hidden = !showImage;
     self._visible = true;
 
     self._timerId = window.setTimeout(() => {
