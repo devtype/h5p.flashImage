@@ -129,6 +129,28 @@ export function liftNestedTask(parameters) {
 }
 
 /**
+ * A one-field blank group is stored as the answer string, not an object.
+ * AdvancedBlanks only creates an input when correctAnswerText is set.
+ *
+ * @param {unknown} list
+ * @returns {object[]}
+ */
+function normalizeBlanksList(list) {
+  if (!Array.isArray(list)) {
+    return [];
+  }
+  return list.map((entry) => {
+    if (typeof entry === 'string' || typeof entry === 'number') {
+      return { correctAnswerText: String(entry) };
+    }
+    if (entry && typeof entry === 'object') {
+      return entry;
+    }
+    return { correctAnswerText: '' };
+  });
+}
+
+/**
  * Build the library object passed to H5P.newRunnable.
  *
  * @param {object|null|undefined} params FlashImage params after lift
@@ -142,7 +164,7 @@ export function buildAdvancedBlanksRunnable(params) {
     : {};
   const l10n = Object.assign({}, LABEL_DEFAULTS, source.l10n || {});
   const a11y = Object.assign({}, A11Y_DEFAULTS, source.a11y || {});
-  const blanksList = Array.isArray(content.blanksList) ? content.blanksList : [];
+  const blanksList = normalizeBlanksList(content.blanksList);
 
   const library = {
     library: ADVANCED_BLANKS_LIBRARY,

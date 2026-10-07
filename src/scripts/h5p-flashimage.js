@@ -202,7 +202,6 @@ FlashImage.prototype.registerDomElements = function () {
 
   self.questionPanel = document.createElement('div');
   self.questionPanel.classList.add('h5p-flashimage__question-panel');
-  self.questionPanel.hidden = true;
 
   self.repeatButton = document.createElement('button');
   self.repeatButton.type = 'button';
@@ -216,9 +215,13 @@ FlashImage.prototype.registerDomElements = function () {
   self.taskContainer.classList.add('h5p-flashimage__task');
   self.questionPanel.appendChild(self.taskContainer);
 
+  self.viewport = document.createElement('div');
+  self.viewport.classList.add('h5p-flashimage__viewport');
+  self.viewport.appendChild(self.flashStage.getElement());
+  self.viewport.appendChild(self.questionPanel);
+
   self.wrapper.appendChild(self.readyPanel);
-  self.wrapper.appendChild(self.flashStage.getElement());
-  self.wrapper.appendChild(self.questionPanel);
+  self.wrapper.appendChild(self.viewport);
 
   // jQuery wrap so H5P.Question.register uses append() for the DOM node.
   self.setContent(H5P.jQuery ? H5P.jQuery(self.wrapper) : self.wrapper);
@@ -399,9 +402,14 @@ FlashImage.prototype._applyPhaseUi = function () {
   const isQuestion = phase === 'question';
 
   self.readyPanel.hidden = !isReady;
-  self.questionPanel.hidden = !isQuestion;
-  if (isQuestion) {
-    // Mount only after the panel is visible and in the document.
+  if (self.viewport) {
+    self.viewport.hidden = isReady;
+  }
+  self._setLayerInert(self.flashStage && self.flashStage.getElement(), !isFlashing);
+  self._setLayerInert(self.questionPanel, !isQuestion);
+  if ((isFlashing || isQuestion) && self.viewport && self.viewport.isConnected) {
+    // Mount while the question layer is in the document so its height
+    // reserves space before the image hides.
     self._ensureTask();
   }
   if (!isFlashing && self.flashStage) {
@@ -414,15 +422,37 @@ FlashImage.prototype._applyPhaseUi = function () {
   }
 
   if (self.repeatButton) {
-    self.repeatButton.hidden = !canShowRepeatFlash({
-      phase,
+    // Keep the button in layout during the flash when the next question will show it.
+    const repeatAvailable = canShowRepeatFlash({
+      phase: 'question',
       submitted: self.state.submitted,
       flashesUsed: self.flashesUsed,
       maxFlashViews: self.maxFlashViews
     });
+    self.repeatButton.hidden = !((isQuestion || isFlashing) && repeatAvailable);
   }
 
   self._resize();
+};
+
+/**
+ * Keep a layer in the shared slot while it is off-screen.
+ * `hidden` would remove it from layout and the slot would change height.
+ *
+ * @param {HTMLElement|null|undefined} element
+ * @param {boolean} inert
+ */
+FlashImage.prototype._setLayerInert = function (element, inert) {
+  if (!element) {
+    return;
+  }
+  element.classList.toggle('h5p-flashimage__layer--inert', inert);
+  if (inert) {
+    element.setAttribute('aria-hidden', 'true');
+  }
+  else {
+    element.removeAttribute('aria-hidden');
+  }
 };
 
 FlashImage.prototype._announce = function (message) {

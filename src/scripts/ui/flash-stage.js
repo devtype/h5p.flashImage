@@ -50,7 +50,6 @@ export default class FlashStage {
     this.root.classList.add('h5p-flashimage__stage');
     this.root.setAttribute('role', 'region');
     this.root.setAttribute('aria-label', this.regionLabel);
-    this.root.hidden = true;
 
     this.statusEl = document.createElement('p');
     this.statusEl.classList.add('h5p-flashimage__loading');
@@ -156,10 +155,12 @@ export default class FlashStage {
   flash(durationMs, onComplete) {
     const self = this;
     self.clearTimer();
-    self.root.hidden = false;
 
     const showImage = self._src && self.img.naturalWidth > 0;
-    self.img.hidden = !showImage;
+    // Leave the image in layout after the flash so the shared slot keeps its height.
+    if (showImage) {
+      self.img.hidden = false;
+    }
     self._visible = true;
 
     self._timerId = window.setTimeout(() => {
@@ -173,8 +174,6 @@ export default class FlashStage {
 
   hide() {
     this.clearTimer();
-    this.root.hidden = true;
-    this.img.hidden = true;
     this._visible = false;
   }
 

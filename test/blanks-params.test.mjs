@@ -94,4 +94,14 @@ describe('buildAdvancedBlanksRunnable', () => {
     assert.equal(runnable.params.content.blanksList[0].correctAnswerText, 'crane/builder');
     assert.equal(runnable.params.checkAnswer, 'Check');
   });
+
+  it('wraps a bare answer string so the gap becomes an input', () => {
+    const runnable = buildAdvancedBlanksRunnable({
+      content: {
+        blanksText: '<p>Das Shirt war ___</p>',
+        blanksList: ['rot']
+      }
+    });
+    assert.deepEqual(runnable.params.content.blanksList, [{ correctAnswerText: 'rot' }]);
+  });
 });

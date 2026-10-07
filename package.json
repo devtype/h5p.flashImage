@@ -1,6 +1,6 @@
 {
   "name": "h5p-flashimage",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "H5P question content type for timed image flash (Bilderblitzen) followed by a Complex fill in the blanks task",
   "private": true,
   "license": "MIT",

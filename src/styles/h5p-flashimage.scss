@@ -24,6 +24,25 @@
     gap: 0.75rem;
   }
 
+  // Image and question share one slot. The taller one sets the height for both,
+  // so switching between them does not move the rest of the page.
+  &__viewport {
+    display: grid;
+    width: 100%;
+  }
+
+  &__stage,
+  &__question-panel {
+    grid-area: 1 / 1;
+    align-self: start;
+    min-width: 0;
+  }
+
+  &__layer--inert {
+    pointer-events: none;
+    visibility: hidden;
+  }
+
   &__intro {
     margin: 0;
   }
