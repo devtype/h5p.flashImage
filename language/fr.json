@@ -7,31 +7,80 @@
     {
       "label": "Image flash",
       "fields": [
+        { "label": "Image", "description": "Image affichée brièvement après le démarrage." },
+        { "label": "Texte alternatif", "description": "Décrit l’image flash pour les lecteurs d’écran. Fortement recommandé lorsque l’image porte le sens de la tâche." },
+        { "label": "Durée d’affichage (secondes)", "description": "Durée pendant laquelle l’image reste visible après le démarrage. Plage autorisée : 0,1–10 secondes." }
+      ]
+    },
+    {
+      "label": "Question",
+      "fields": [
+        { "label": "Consigne", "description": "Indique à l’apprenant comment répondre.", "default": "<p>Complétez les blancs.</p>" },
+        { "label": "Texte à trous", "description": "Marquez chaque blanc avec au moins trois tirets bas (___). N’écrivez pas les réponses dans le texte." },
         {
-          "label": "Image",
-          "description": "Image affichée brièvement après le démarrage."
-        },
-        {
-          "label": "Texte alternatif",
-          "description": "Décrit l’image flash pour les lecteurs d’écran. Fortement recommandé lorsque l’image porte le sens de la tâche."
-        },
-        {
-          "label": "Durée d’affichage (secondes)",
-          "description": "Durée pendant laquelle l’image reste visible après le démarrage. Plage autorisée : 0,1–10 secondes."
+          "label": "Réponses",
+          "entity": "blanc",
+          "field": {
+            "label": "Blanc",
+            "fields": [
+              { "label": "Réponse correcte", "description": "Une réponse pour ce blanc, dans le même ordre que les blancs du texte. Séparez les alternatives avec une barre oblique (/)." }
+            ]
+          }
         }
       ]
     },
     {
-      "label": "Tâche",
-      "description": "Texte à trous complexe affiché une fois l’image masquée."
-    },
-    {
-      "label": "Paramètres de comportement",
+      "label": "Feedback général",
       "fields": [
         {
-          "label": "Nombre maximal d’affichages",
-          "description": "Combien de fois l’apprenant peut voir l’image dans une tentative, premier flash compris. 0 signifie illimité."
+          "label": "Définissez des feedbacks pour différents intervalles de scores",
+          "entity": "intervalle",
+          "field": {
+            "fields": [
+              { "label": "Intervalle de scores" },
+              {},
+              { "label": "Feedback pour cet intervalle de scores" }
+            ]
+          }
         }
+      ]
+    },
+    {
+      "label": "Comportement",
+      "description": "Combien de fois l’image peut être montrée, et comment le texte à trous se comporte.",
+      "fields": [
+        { "label": "Nombre maximal d’affichages", "description": "Combien de fois l’apprenant peut voir l’image dans une tentative, premier flash compris. 0 signifie illimité." },
+        {
+          "label": "Mode de réponse",
+          "options": [
+            { "label": "L’utilisateur tape les réponses." },
+            { "label": "L’utilisateur sélectionne parmi les choix proposés." }
+          ]
+        },
+        {
+          "label": "Choix proposés à l’utilisateur",
+          "options": [
+            { "label": "Les réponses incorrectes fournies pour le blanc" },
+            { "label": "Les réponses correctes fournies pour tous les autres blancs" }
+          ]
+        },
+        { "label": "Nombre maximum de choix proposés", "description": "Saisissez 0 pour ne pas limiter." },
+        {
+          "label": "Comportement en cas de faute d’orthographe",
+          "options": [
+            { "label": "Considérez-la comme une bonne réponse" },
+            { "label": "Avertir l’utilisateur de l’erreur" },
+            { "label": "Considérez que c’est vraiment une erreur" }
+          ]
+        },
+        { "label": "Sensible à la casse" },
+        { "label": "Vérifier les réponses dès la saisie" },
+        { "label": "Activer le bouton « Vérifier »" },
+        { "label": "Activer le bouton « Voir la correction »" },
+        { "label": "Obliger à remplir tous les blancs avant de voir la correction" },
+        { "label": "Activer le bouton « Recommencer »" },
+        { "label": "Afficher la fenêtre de confirmation pour « Vérifier »" },
+        { "label": "Afficher la fenêtre de confirmation pour « Recommencer »" }
       ]
     },
     {
@@ -39,7 +88,14 @@
       "fields": [
         { "label": "Bouton démarrer le flash", "default": "Démarrer le flash d’image" },
         { "label": "Bouton réafficher l’image", "default": "Réafficher l’image" },
-        { "label": "Message de chargement", "default": "Chargement de l’image…" }
+        { "label": "Message de chargement", "default": "Chargement de l’image…" },
+        { "label": "Bouton « Vérifier »", "default": "Vérifier" },
+        { "label": "Bouton « Voir la correction »", "default": "Voir la correction" },
+        { "label": "Bouton « Recommencer »", "default": "Recommencer" },
+        { "label": "Message « Incomplet »", "default": "Vous devez avoir rempli tous les blancs avant de voir la correction" },
+        { "label": "Intitulé de l’indice", "default": "Indice" },
+        { "label": "Avertissement d’orthographe", "default": "Vérifiez votre orthographe : @mistake" },
+        { "label": "Texte du score", "default": "Vous avez obtenu :num points sur un total de :total" }
       ]
     },
     {
@@ -47,10 +103,29 @@
       "fields": [
         { "label": "Libellé de la zone image flash", "default": "Image flash" },
         { "label": "Annonce flash démarré", "default": "Flash d’image démarré." },
-        {
-          "label": "Annonce flash terminé",
-          "default": "Image masquée. Réponds à la question."
-        }
+        { "label": "Annonce flash terminé", "default": "Image masquée. Réponds à la question." },
+        { "label": "Description du bouton « Vérifier »", "default": "Vérifier les réponses. Les réponses seront marquées comme correctes, incorrectes ou sans réponse." },
+        { "label": "Description du bouton « Voir la correction »", "default": "Afficher la correction. La tâche sera marquée avec la bonne réponse." },
+        { "label": "Description du bouton « Recommencer »", "default": "Recommencer la tâche. Toutes les réponses sont effacées." },
+        { "label": "Description du mode vérification", "default": "Mode vérification" }
+      ]
+    },
+    {
+      "label": "Fenêtre de confirmation pour « Vérifier »",
+      "fields": [
+        { "label": "Titre", "default": "Terminé ?" },
+        { "label": "Texte", "default": "Vous êtes sûr de vouloir finir ?" },
+        { "label": "Intitulé du bouton d’annulation", "default": "Annuler" },
+        { "label": "Intitulé du bouton de confirmation", "default": "Terminer" }
+      ]
+    },
+    {
+      "label": "Fenêtre de confirmation pour « Recommencer »",
+      "fields": [
+        { "label": "Titre", "default": "Réessayer ?" },
+        { "label": "Texte", "default": "Vous êtes sûr de vouloir réessayer ?" },
+        { "label": "Intitulé du bouton d’annulation", "default": "Annuler" },
+        { "label": "Intitulé du bouton de confirmation", "default": "Confirmer" }
       ]
     }
   ]

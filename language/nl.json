@@ -7,31 +7,80 @@
     {
       "label": "Flitsbeeld",
       "fields": [
+        { "label": "Afbeelding", "description": "Afbeelding die kort wordt getoond na het starten." },
+        { "label": "Alternatieve tekst", "description": "Beschrijft het flitsbeeld voor schermlezers. Sterk aanbevolen wanneer de afbeelding betekenis heeft voor de taak." },
+        { "label": "Weergaveduur (seconden)", "description": "Hoe lang de afbeelding zichtbaar blijft na de start. Toegestaan bereik: 0,1–10 seconden." }
+      ]
+    },
+    {
+      "label": "Vraag",
+      "fields": [
+        { "label": "Beschrijving opgave", "description": "Legt uit hoe de leerling moet antwoorden.", "default": "<p>Vul de ontbrekende woorden in.</p>" },
+        { "label": "Tekst met lege plekken", "description": "Markeer elke lege plek met minstens drie lage streepjes (___). Zet de antwoorden niet in de tekst." },
         {
-          "label": "Afbeelding",
-          "description": "Afbeelding die kort wordt getoond na het starten."
-        },
-        {
-          "label": "Alternatieve tekst",
-          "description": "Beschrijft het flitsbeeld voor schermlezers. Sterk aanbevolen wanneer de afbeelding betekenis heeft voor de taak."
-        },
-        {
-          "label": "Weergaveduur (seconden)",
-          "description": "Hoe lang de afbeelding zichtbaar blijft na de start. Toegestaan bereik: 0,1–10 seconden."
+          "label": "Antwoorden",
+          "entity": "lege plek",
+          "field": {
+            "label": "Lege plek",
+            "fields": [
+              { "label": "Juist antwoord", "description": "Eén antwoord voor deze plek, in dezelfde volgorde als de plekken in de tekst. Scheid alternatieven met een schuine streep (/)." }
+            ]
+          }
         }
       ]
     },
     {
-      "label": "Taak",
-      "description": "Complexe invultekst die wordt getoond nadat de afbeelding verborgen is."
-    },
-    {
-      "label": "Gedragsinstellingen",
+      "label": "Algehele feedback",
       "fields": [
         {
-          "label": "Maximum aantal weergaven",
-          "description": "Hoe vaak de leerling de afbeelding in één poging mag zien, inclusief de eerste flits. 0 betekent onbeperkt."
+          "label": "Definieer aangepaste feedback voor elke scorereeks",
+          "entity": "reeks",
+          "field": {
+            "fields": [
+              { "label": "Scorereeks" },
+              {},
+              { "label": "Feedback voor de gedefinieerde scorereeks" }
+            ]
+          }
         }
+      ]
+    },
+    {
+      "label": "Gedrag",
+      "description": "Hoe vaak de afbeelding getoond mag worden, en hoe de invultekst zich gedraagt.",
+      "fields": [
+        { "label": "Maximum aantal weergaven", "description": "Hoe vaak de leerling de afbeelding in één poging mag zien, inclusief de eerste flits. 0 betekent onbeperkt." },
+        {
+          "label": "Antwoordmodus",
+          "options": [
+            { "label": "De gebruikers typen de antwoorden in." },
+            { "label": "De gebruikers maken een keuze uit opties." }
+          ]
+        },
+        {
+          "label": "Alternatieven die voor selectie worden aangeboden",
+          "options": [
+            { "label": "De onjuiste antwoorden die zijn ingevoerd voor de lege plek" },
+            { "label": "De juiste antwoorden van alle andere lege plekken" }
+          ]
+        },
+        { "label": "Maximaal aantal alternatieven van andere lege plekken", "description": "Vul 0 in voor geen limiet." },
+        {
+          "label": "Gedrag bij een spelfout",
+          "options": [
+            { "label": "Accepteer het als een correct antwoord" },
+            { "label": "Waarschuw de gebruiker voor de fout" },
+            { "label": "Beschouw het als een normale fout" }
+          ]
+        },
+        { "label": "Hoofdlettergevoelig" },
+        { "label": "Antwoorden automatisch controleren na invoer" },
+        { "label": "Knop «Controleer» activeren" },
+        { "label": "Knop «Toon oplossing» activeren" },
+        { "label": "Alle velden moeten zijn ingevuld voordat de oplossing kan worden bekeken" },
+        { "label": "«Opnieuw» activeren" },
+        { "label": "Bevestigingsvenster tonen bij «Controleer»" },
+        { "label": "Bevestigingsvenster tonen bij «Opnieuw»" }
       ]
     },
     {
@@ -39,7 +88,14 @@
       "fields": [
         { "label": "Knop start flits", "default": "Beeldflits starten" },
         { "label": "Knop toon afbeelding opnieuw", "default": "Afbeelding opnieuw tonen" },
-        { "label": "Laadbericht", "default": "Afbeelding laden…" }
+        { "label": "Laadbericht", "default": "Afbeelding laden…" },
+        { "label": "Knop «Controleer»", "default": "Controleer" },
+        { "label": "Knop «Toon oplossing»", "default": "Toon oplossing" },
+        { "label": "Knop «Opnieuw»", "default": "Opnieuw" },
+        { "label": "Bericht «Niet ingevuld»", "default": "Alle velden moeten worden ingevuld voordat de oplossing kan worden getoond" },
+        { "label": "Label van het tip-pictogram", "default": "Tip" },
+        { "label": "Waarschuwing voor spelfouten", "default": "Controleer je spelling: @mistake" },
+        { "label": "Tekst van de scorebalk", "default": "Je hebt :num van de :total punten" }
       ]
     },
     {
@@ -47,10 +103,29 @@
       "fields": [
         { "label": "Label flitsbeeldgebied", "default": "Flitsbeeld" },
         { "label": "Aankondiging flits gestart", "default": "Beeldflits gestart." },
-        {
-          "label": "Aankondiging flits beëindigd",
-          "default": "Afbeelding verborgen. Beantwoord de vraag."
-        }
+        { "label": "Aankondiging flits beëindigd", "default": "Afbeelding verborgen. Beantwoord de vraag." },
+        { "label": "Beschrijving van de knop «Controleer»", "default": "Controleer de antwoorden. Ze worden gemarkeerd als goed, fout of onbeantwoord." },
+        { "label": "Beschrijving van de knop «Toon oplossing»", "default": "Toon de oplossing. De taak wordt gemarkeerd met het juiste antwoord." },
+        { "label": "Beschrijving van de knop «Opnieuw»", "default": "Probeer de taak opnieuw. Alle antwoorden worden gewist." },
+        { "label": "Beschrijving van de controlemodus", "default": "Controlemodus" }
+      ]
+    },
+    {
+      "label": "Bevestigingsdialoog voor controleren",
+      "fields": [
+        { "label": "Koptekst", "default": "Klaar?" },
+        { "label": "Hoofdtekst", "default": "Ben je er zeker van dat je wilt stoppen?" },
+        { "label": "Label annuleerknop", "default": "Annuleer" },
+        { "label": "Label bevestigingsknop", "default": "Klaar" }
+      ]
+    },
+    {
+      "label": "Bevestigingsdialoog voor opnieuw",
+      "fields": [
+        { "label": "Koptekst", "default": "Opnieuw?" },
+        { "label": "Hoofdtekst", "default": "Ben je er zeker van dat je het opnieuw wil proberen?" },
+        { "label": "Label annuleerknop", "default": "Annuleer" },
+        { "label": "Label bevestigingsknop", "default": "Bevestig" }
       ]
     }
   ]

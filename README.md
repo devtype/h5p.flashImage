@@ -8,14 +8,14 @@ Timed image-flash question type for H5P. Learners deliberately start a flash of 
 - Optional introduction text before start
 - Image preloaded before **Start image flash** is enabled
 - During the flash, only the image is shown
-- Nested Complex fill in the blanks task for the question, score, solutions, retry, and xAPI
+- One authoring form for the flash and the fill-in question. After the flash, the player runs `H5P.AdvancedBlanks` for scoring, check, solutions, retry, and xAPI
 - Configurable maximum flash views (`0` = unlimited), including the first flash
 - Keyboard-focusable controls; focus moves to the task after the flash
 - Locales: `en`, `de`, `fr`, `es`, `nl`
 
 ## Requirements
 
-- H5P core with `H5P.Question` 1.5, `H5P.Image` 1.1, and `H5P.AdvancedBlanks` 1.2 available on the host
+- H5P core with `H5P.Question` 1.5, `H5P.Image` 1.1, `H5P.AdvancedBlanks` 1.2, and `H5P.Components` 1.0 available on the host. AdvancedBlanks uses Components for its buttons. The editor also needs `H5PEditor.RangeList` 1.0 and `H5PEditor.ShowWhen` 1.0.
 
 ## Develop
 

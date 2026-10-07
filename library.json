@@ -3,7 +3,7 @@
   "description": "Shows a flash image for a configured duration, then a Complex fill in the blanks task. Learners must start the flash deliberately; the image stays hidden while answering.",
   "machineName": "H5P.FlashImage",
   "majorVersion": 0,
-  "minorVersion": 2,
+  "minorVersion": 3,
   "patchVersion": 0,
   "runnable": 1,
   "embedTypes": ["iframe"],
@@ -31,5 +31,17 @@
   ],
   "preloadedCss": [
     { "path": "dist/h5p-flashimage.css" }
+  ],
+  "editorDependencies": [
+    {
+      "machineName": "H5PEditor.RangeList",
+      "majorVersion": 1,
+      "minorVersion": 0
+    },
+    {
+      "machineName": "H5PEditor.ShowWhen",
+      "majorVersion": 1,
+      "minorVersion": 0
+    }
   ]
 }

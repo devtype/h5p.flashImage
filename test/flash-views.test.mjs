@@ -26,6 +26,12 @@ describe('resolveMaxFlashViews', () => {
     assert.equal(resolveMaxFlashViews({ maxFlashViews: 0 }), 0);
   });
 
+  it('reads the bare number H5P stores for a one-field group', () => {
+    assert.equal(resolveMaxFlashViews(3), 3);
+    assert.equal(resolveMaxFlashViews(0), 0);
+    assert.equal(resolveMaxFlashViews('2'), 2);
+  });
+
   it('maps legacy allowRepeatFlash when no limit is set', () => {
     assert.equal(resolveMaxFlashViews({ allowRepeatFlash: false }), 1);
     assert.equal(resolveMaxFlashViews({ allowRepeatFlash: true }), 0);
@@ -46,6 +52,7 @@ describe('migrateMaxFlashViews', () => {
 
   it('keeps an existing limit', () => {
     assert.equal(migrateMaxFlashViews({ maxFlashViews: 4, allowRepeatFlash: false }), 4);
+    assert.equal(migrateMaxFlashViews(3), 3);
   });
 });
 

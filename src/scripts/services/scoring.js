@@ -103,42 +103,65 @@ export function normalizeMaxFlashViews(value) {
 }
 
 /**
- * Resolve the view limit from raw behaviour params.
- * An explicit maxFlashViews wins. Legacy allowRepeatFlash maps false → 1 and
- * true → 0. When neither key is present, new content uses the default (1).
+ * Read a view limit stored either as a number or as a behaviour object.
+ * H5P saves a group with a single field as that field's value, so
+ * `behaviour` is often `3` rather than `{ maxFlashViews: 3 }`.
  *
- * @param {object|null|undefined} behaviour
+ * @param {number|string|object|null|undefined} behaviour
+ * @returns {number|undefined} undefined when no limit is present
+ */
+function readExplicitMaxFlashViews(behaviour) {
+  if (typeof behaviour === 'number' || typeof behaviour === 'string') {
+    if (behaviour === '') {
+      return undefined;
+    }
+    return normalizeMaxFlashViews(behaviour);
+  }
+  if (!behaviour || typeof behaviour !== 'object') {
+    return undefined;
+  }
+  if (behaviour.maxFlashViews !== undefined && behaviour.maxFlashViews !== null
+    && behaviour.maxFlashViews !== '') {
+    return normalizeMaxFlashViews(behaviour.maxFlashViews);
+  }
+  return undefined;
+}
+
+/**
+ * Resolve the view limit from raw behaviour params.
+ * An explicit maxFlashViews wins, including the bare number H5P stores for
+ * a one-field group. Legacy allowRepeatFlash maps false → 1 and true → 0.
+ * When neither is present, new content uses the default (1).
+ *
+ * @param {number|string|object|null|undefined} behaviour
  * @returns {number}
  */
 export function resolveMaxFlashViews(behaviour) {
-  const source = behaviour || {};
-  if (Object.prototype.hasOwnProperty.call(source, 'maxFlashViews')
-    && source.maxFlashViews !== undefined
-    && source.maxFlashViews !== null
-    && source.maxFlashViews !== '') {
-    return normalizeMaxFlashViews(source.maxFlashViews);
+  const explicit = readExplicitMaxFlashViews(behaviour);
+  if (explicit !== undefined) {
+    return explicit;
   }
-  if (Object.prototype.hasOwnProperty.call(source, 'allowRepeatFlash')) {
-    return source.allowRepeatFlash === false ? 1 : 0;
+  if (behaviour && typeof behaviour === 'object'
+    && Object.prototype.hasOwnProperty.call(behaviour, 'allowRepeatFlash')) {
+    return behaviour.allowRepeatFlash === false ? 1 : 0;
   }
   return DEFAULT_MAX_FLASH_VIEWS;
 }
 
 /**
  * Upgrade mapping for 0.1 behaviour.
- * allowRepeatFlash false → 1, true or missing → 0 (unlimited).
- * An existing maxFlashViews value is kept.
+ * A bare number is kept. allowRepeatFlash false → 1, true or missing → 0.
+ * The result is a number because H5P stores a one-field group unwrapped.
  *
- * @param {object|null|undefined} behaviour
+ * @param {number|string|object|null|undefined} behaviour
  * @returns {number}
  */
 export function migrateMaxFlashViews(behaviour) {
-  const source = behaviour || {};
-  if (source.maxFlashViews !== undefined && source.maxFlashViews !== null
-    && source.maxFlashViews !== '') {
-    return normalizeMaxFlashViews(source.maxFlashViews);
+  const explicit = readExplicitMaxFlashViews(behaviour);
+  if (explicit !== undefined) {
+    return explicit;
   }
-  if (source.allowRepeatFlash === false) {
+  if (behaviour && typeof behaviour === 'object' && behaviour.allowRepeatFlash === false) {
     return 1;
   }
   return 0;

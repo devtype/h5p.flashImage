@@ -51,19 +51,9 @@ H5PUpgrades['H5P.FlashImage'] = {
      */
     2: function (parameters, finished, extras) {
       parameters = parameters || {};
-      parameters.behaviour = parameters.behaviour || {};
-      parameters.behaviour.maxFlashViews = migrateMaxFlashViews(parameters.behaviour);
+      // One-field groups are stored as the inner value, so behaviour is a number.
+      parameters.behaviour = migrateMaxFlashViews(parameters.behaviour);
 
-      delete parameters.behaviour.allowRepeatFlash;
-      delete parameters.behaviour.enableCheckButton;
-      delete parameters.behaviour.enableSolutionsButton;
-      delete parameters.behaviour.enableRetry;
-      delete parameters.behaviour.type;
-      delete parameters.behaviour.singlePoint;
-      delete parameters.behaviour.randomAnswers;
-      delete parameters.behaviour.maxScore;
-      delete parameters.behaviour.confirmCheckDialog;
-      delete parameters.behaviour.confirmRetryDialog;
       delete parameters.question;
       delete parameters.answers;
       delete parameters.overallFeedback;
@@ -71,30 +61,170 @@ H5PUpgrades['H5P.FlashImage'] = {
       delete parameters.confirmRetry;
 
       finished(null, parameters, extras);
+    },
+
+    /**
+     * Fold the nested AdvancedBlanks library into FlashImage's own fields.
+     * A bare behaviour number becomes { maxFlashViews }.
+     *
+     * @param {object} parameters
+     * @param {function} finished
+     * @param {object} extras
+     */
+    3: function (parameters, finished, extras) {
+      finished(null, liftNestedTask(parameters), extras);
     }
   }
 };
 
 /**
  * Keep in sync with migrateMaxFlashViews() in src/scripts/services/scoring.js.
+ * Accepts the bare number H5P stores for a one-field group.
  *
- * @param {object} behaviour
+ * @param {number|string|object|null|undefined} behaviour
  * @returns {number}
  */
 function migrateMaxFlashViews(behaviour) {
+  if (typeof behaviour === 'number' || (typeof behaviour === 'string' && behaviour !== '')) {
+    return clampFlashViews(behaviour);
+  }
   var source = behaviour || {};
   if (source.maxFlashViews !== undefined && source.maxFlashViews !== null
     && source.maxFlashViews !== '') {
-    var existing = Math.floor(Number(source.maxFlashViews));
-    if (!isFinite(existing) || existing < 0) {
-      return 1;
-    }
-    return Math.min(20, existing);
+    return clampFlashViews(source.maxFlashViews);
   }
   if (source.allowRepeatFlash === false) {
     return 1;
   }
   return 0;
+}
+
+/**
+ * @param {number|string} value
+ * @returns {number}
+ */
+function clampFlashViews(value) {
+  var existing = Math.floor(Number(value));
+  if (!isFinite(existing) || existing < 0) {
+    return 1;
+  }
+  return Math.min(20, existing);
+}
+
+/**
+ * @param {object} flashimage
+ */
+/**
+ * Keep in sync with liftNestedTask() in src/scripts/services/blanks-params.js.
+ * Copies a nested AdvancedBlanks task onto FlashImage fields and removes task.
+ *
+ * @param {object|null|undefined} parameters
+ * @returns {object}
+ */
+function liftNestedTask(parameters) {
+  var params = parameters && typeof parameters === 'object' ? parameters : {};
+  var task = params.task;
+  var child = task && task.params && typeof task.params === 'object' ? task.params : null;
+  var maxFlashViews = readUpgradeMaxFlashViews(params.behaviour);
+  var childBehaviour;
+  var labelKeys;
+  var i;
+
+  if (!child) {
+    if (typeof params.behaviour === 'number' || typeof params.behaviour === 'string') {
+      params.behaviour = { maxFlashViews: maxFlashViews };
+    }
+    if (params.task) {
+      delete params.task;
+    }
+    return params;
+  }
+
+  childBehaviour = {};
+  if (child.behaviour && typeof child.behaviour === 'object') {
+    for (var key in child.behaviour) {
+      if (Object.prototype.hasOwnProperty.call(child.behaviour, key) && key !== 'maxFlashViews') {
+        childBehaviour[key] = child.behaviour[key];
+      }
+    }
+  }
+  childBehaviour.maxFlashViews = maxFlashViews;
+  params.behaviour = childBehaviour;
+
+  if (child.content) {
+    params.content = child.content;
+  }
+  if (child.overallFeedback) {
+    params.overallFeedback = child.overallFeedback;
+  }
+
+  params.l10n = params.l10n && typeof params.l10n === 'object' ? params.l10n : {};
+  labelKeys = [
+    'showSolutions',
+    'tryAgain',
+    'checkAnswer',
+    'submitAnswer',
+    'notFilledOut',
+    'tipLabel',
+    'spellingMistakeWarning',
+    'scoreBarLabel'
+  ];
+  for (i = 0; i < labelKeys.length; i++) {
+    if (child[labelKeys[i]]) {
+      params.l10n[labelKeys[i]] = child[labelKeys[i]];
+    }
+  }
+
+  if (child.confirmCheck) {
+    params.confirmCheck = child.confirmCheck;
+  }
+  if (child.confirmRetry) {
+    params.confirmRetry = child.confirmRetry;
+  }
+
+  params.a11y = params.a11y && typeof params.a11y === 'object' ? params.a11y : {};
+  if (child.a11yCheck) {
+    params.a11y.check = child.a11yCheck;
+  }
+  if (child.a11yShowSolution) {
+    params.a11y.showSolution = child.a11yShowSolution;
+  }
+  if (child.a11yRetry) {
+    params.a11y.retry = child.a11yRetry;
+  }
+  if (child.a11yCheckingModeHeader) {
+    params.a11y.checkingMode = child.a11yCheckingModeHeader;
+  }
+
+  if (task.subContentId) {
+    params.subContentId = task.subContentId;
+  }
+  delete params.task;
+  return params;
+}
+
+/**
+ * View limit used while lifting 0.2 params. A bare number wins, including 0.
+ *
+ * @param {number|string|object|null|undefined} behaviour
+ * @returns {number}
+ */
+function readUpgradeMaxFlashViews(behaviour) {
+  if (typeof behaviour === 'number' || (typeof behaviour === 'string' && behaviour !== '')) {
+    return clampFlashViews(behaviour);
+  }
+  var source = behaviour && typeof behaviour === 'object' ? behaviour : {};
+  if (source.maxFlashViews !== undefined && source.maxFlashViews !== null
+    && source.maxFlashViews !== '') {
+    return clampFlashViews(source.maxFlashViews);
+  }
+  if (source.allowRepeatFlash === false) {
+    return 1;
+  }
+  if (source.allowRepeatFlash === true) {
+    return 0;
+  }
+  return 1;
 }
 
 /**

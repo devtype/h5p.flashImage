@@ -7,31 +7,82 @@
     {
       "label": "Flash image",
       "fields": [
+        { "label": "Image", "description": "Image shown briefly after the learner starts the flash." },
+        { "label": "Alternative text", "description": "Describe the flash image for screen reader users. Strongly recommended whenever the image carries meaning for the task." },
+        { "label": "Display duration (seconds)", "description": "How long the image stays visible after start. Allowed range: 0.1–10 seconds." }
+      ]
+    },
+    {
+      "label": "Question",
+      "fields": [
+        { "label": "Task description", "description": "A guide telling the user how to answer this task.", "default": "<p>Fill in the missing words.</p>" },
+        { "label": "Text with blanks", "description": "Mark each blank with three or more underscores (___). Do not put the answers in the text." },
         {
-          "label": "Image",
-          "description": "Image shown briefly after the learner starts the flash."
-        },
-        {
-          "label": "Alternative text",
-          "description": "Describe the flash image for screen reader users. Strongly recommended whenever the image carries meaning for the task."
-        },
-        {
-          "label": "Display duration (seconds)",
-          "description": "How long the image stays visible after start. Allowed range: 0.1–10 seconds."
+          "label": "Answers",
+          "entity": "blank",
+          "field": {
+            "label": "Blank",
+            "fields": [
+              { "label": "Correct answer", "description": "One answer for this blank, in the same order as the blanks in the text. Separate alternative answers with a slash (/)." }
+            ]
+          }
         }
       ]
     },
     {
-      "label": "Task",
-      "description": "Complex fill in the blanks task shown after the image is hidden."
+      "label": "Overall feedback",
+      "fields": [
+        {
+          "label": "Define custom feedback for any score range",
+          "description": "Click the \"Add range\" button to add as many ranges as you need. Example: 0-20% Bad score, 21-91% Average Score, 91-100% Great Score!",
+          "entity": "range",
+          "field": {
+            "fields": [
+              { "label": "Score range" },
+              {},
+              { "label": "Feedback for defined score range" }
+            ]
+          }
+        }
+      ]
     },
     {
       "label": "Behavioural settings",
+      "description": "How often the image may be shown, and how the fill-in task behaves.",
       "fields": [
+        { "label": "Maximum flash views", "description": "How many times the learner may see the image in one attempt, including the first flash. Use 0 for unlimited." },
         {
-          "label": "Maximum flash views",
-          "description": "How many times the learner may see the image in one attempt, including the first flash. Use 0 for unlimited."
-        }
+          "label": "Answer mode",
+          "description": "Indicates in what way the user gives answers.",
+          "options": [
+            { "label": "The user types in the answers." },
+            { "label": "The user selects from options." }
+          ]
+        },
+        {
+          "label": "Alternatives offered for selection",
+          "options": [
+            { "label": "The incorrect answers entered for the blank" },
+            { "label": "The correct answers of all other blanks" }
+          ]
+        },
+        { "label": "Maximum number of alternatives of other blanks offered for selection", "description": "Enter 0 to set no limit." },
+        {
+          "label": "Behaviour when the user makes a spelling error",
+          "options": [
+            { "label": "Accept it as a correct answer" },
+            { "label": "Warn the user about the error" },
+            { "label": "Consider it a regular mistake" }
+          ]
+        },
+        { "label": "Case sensitive", "description": "If enabled, capitalization that is different from the solution is considered an error." },
+        { "label": "Automatically check answers after input" },
+        { "label": "Enable \"Check\" button" },
+        { "label": "Enable \"Show solution\" button" },
+        { "label": "Require all fields to be answered before the solution can be viewed" },
+        { "label": "Enable \"Retry\"" },
+        { "label": "Show confirmation dialog on \"Check\"" },
+        { "label": "Show confirmation dialog on \"Retry\"" }
       ]
     },
     {
@@ -39,7 +90,14 @@
       "fields": [
         { "label": "Start flash button", "default": "Start image flash" },
         { "label": "Repeat flash button", "default": "Show image again" },
-        { "label": "Loading message", "default": "Loading image…" }
+        { "label": "Loading message", "default": "Loading image…" },
+        { "label": "Check button", "default": "Check" },
+        { "label": "Show solution button", "default": "Show solution" },
+        { "label": "Retry button", "default": "Retry" },
+        { "label": "Not filled out message", "default": "Please fill in all blanks to view solution" },
+        { "label": "Tip icon label", "default": "Tip" },
+        { "label": "Spelling mistake warning", "description": "Insert @mistake to show the misspelled word.", "default": "Check your spelling: @mistake" },
+        { "label": "Score bar text", "default": "You got :num out of :total points" }
       ]
     },
     {
@@ -47,10 +105,29 @@
       "fields": [
         { "label": "Flash image region label", "default": "Flash image" },
         { "label": "Flash started announcement", "default": "Image flash started." },
-        {
-          "label": "Flash ended announcement",
-          "default": "Image hidden. Answer the question."
-        }
+        { "label": "Flash ended announcement", "default": "Image hidden. Answer the question." },
+        { "label": "Check button description", "default": "Check the answers. The responses will be marked as correct, incorrect, or unanswered." },
+        { "label": "Show solution button description", "default": "Show the solution. The task will be marked with its correct solution." },
+        { "label": "Retry button description", "default": "Retry the task. Reset all responses and start the task over again." },
+        { "label": "Checking mode description", "default": "Checking mode" }
+      ]
+    },
+    {
+      "label": "Check confirmation dialog",
+      "fields": [
+        { "label": "Header text", "default": "Finish?" },
+        { "label": "Body text", "default": "Are you sure you wish to finish?" },
+        { "label": "Cancel button label", "default": "Cancel" },
+        { "label": "Confirm button label", "default": "Finish" }
+      ]
+    },
+    {
+      "label": "Retry confirmation dialog",
+      "fields": [
+        { "label": "Header text", "default": "Retry?" },
+        { "label": "Body text", "default": "Are you sure you wish to retry?" },
+        { "label": "Cancel button label", "default": "Cancel" },
+        { "label": "Confirm button label", "default": "Confirm" }
       ]
     }
   ]

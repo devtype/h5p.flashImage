@@ -7,31 +7,82 @@
     {
       "label": "Blitzbild",
       "fields": [
+        { "label": "Bild", "description": "Bild, das nach dem Start kurz angezeigt wird." },
+        { "label": "Alternativtext", "description": "Beschreibt das Blitzbild für Screenreader. Dringend empfohlen, wenn das Bild für die Aufgabe bedeutsam ist." },
+        { "label": "Anzeigedauer (Sekunden)", "description": "Wie lange das Bild nach dem Start sichtbar bleibt. Zulässiger Bereich: 0,1–10 Sekunden." }
+      ]
+    },
+    {
+      "label": "Frage",
+      "fields": [
+        { "label": "Aufgabenbeschreibung", "description": "Hinweis, wie die Aufgabe zu beantworten ist.", "default": "<p>Trage die fehlenden Wörter ein.</p>" },
+        { "label": "Text mit Lücken", "description": "Markiere jede Lücke mit mindestens drei Unterstrichen (___). Schreibe die Antworten nicht in den Text." },
         {
-          "label": "Bild",
-          "description": "Bild, das nach dem Start kurz angezeigt wird."
-        },
-        {
-          "label": "Alternativtext",
-          "description": "Beschreibt das Blitzbild für Screenreader. Dringend empfohlen, wenn das Bild für die Aufgabe bedeutsam ist."
-        },
-        {
-          "label": "Anzeigedauer (Sekunden)",
-          "description": "Wie lange das Bild nach dem Start sichtbar bleibt. Zulässiger Bereich: 0,1–10 Sekunden."
+          "label": "Antworten",
+          "entity": "Lücke",
+          "field": {
+            "label": "Lücke",
+            "fields": [
+              { "label": "Richtige Antwort", "description": "Eine Antwort für diese Lücke, in derselben Reihenfolge wie die Lücken im Text. Alternative Antworten mit einem Schrägstrich (/) trennen." }
+            ]
+          }
         }
       ]
     },
     {
-      "label": "Aufgabe",
-      "description": "Komplexer Lückentext, der angezeigt wird, nachdem das Bild ausgeblendet wurde."
+      "label": "Gesamtrückmeldung",
+      "fields": [
+        {
+          "label": "Lege Rückmeldungen für einzelne Punktebereiche fest",
+          "description": "Füge mit „Bereich hinzufügen“ so viele Bereiche hinzu, wie du brauchst. Beispiel: 0–20 % schwach, 21–91 % mittel, 91–100 % stark.",
+          "entity": "Bereich",
+          "field": {
+            "fields": [
+              { "label": "Punktebereich" },
+              {},
+              { "label": "Rückmeldung für jeweiligen Punktebereich" }
+            ]
+          }
+        }
+      ]
     },
     {
       "label": "Verhalten",
+      "description": "Wie oft das Bild gezeigt werden darf und wie sich der Lückentext verhält.",
       "fields": [
+        { "label": "Maximale Bildanzeigen", "description": "Wie oft die Lernenden das Bild in einem Versuch sehen dürfen, einschließlich der ersten Anzeige. 0 bedeutet unbegrenzt." },
         {
-          "label": "Maximale Bildanzeigen",
-          "description": "Wie oft die Lernenden das Bild in einem Versuch sehen dürfen, einschließlich der ersten Anzeige. 0 bedeutet unbegrenzt."
-        }
+          "label": "Antwortmodus",
+          "description": "Wie die Antwort gegeben wird.",
+          "options": [
+            { "label": "Der Nutzer tippt sie ein." },
+            { "label": "Der Nutzer wählt aus einer Liste aus." }
+          ]
+        },
+        {
+          "label": "Alternativen, die zur Auswahl angeboten werden",
+          "options": [
+            { "label": "Die für die jeweilige Lücke eingegebenen falschen Antworten" },
+            { "label": "Die richtigen Antworten von allen anderen Lücken" }
+          ]
+        },
+        { "label": "Maximalzahl der richtigen Antworten von allen anderen Lücken, die zur Auswahl angeboten werden", "description": "0 bedeutet kein Limit." },
+        {
+          "label": "Verhalten bei Tippfehlern",
+          "options": [
+            { "label": "Als richtige Antwort akzeptieren" },
+            { "label": "Den Nutzer über den Fehler warnen" },
+            { "label": "Als Fehler ansehen" }
+          ]
+        },
+        { "label": "Auf Groß-/Kleinschreibung achten", "description": "Wenn aktiv, gilt eine andere Groß- und Kleinschreibung als die Lösung als Fehler." },
+        { "label": "Antworten nach Eingabe automatisch prüfen" },
+        { "label": "„Überprüfen“-Button anzeigen" },
+        { "label": "„Lösung anzeigen“-Button anzeigen" },
+        { "label": "Alle Lücken müssen ausgefüllt sein, bevor die Lösung angesehen werden kann" },
+        { "label": "„Wiederholen“ zulassen" },
+        { "label": "Bestätigungsdialog beim Klicken auf „Überprüfen“ anzeigen" },
+        { "label": "Bestätigungsdialog beim Klicken auf „Wiederholen“ anzeigen" }
       ]
     },
     {
@@ -39,7 +90,14 @@
       "fields": [
         { "label": "Schaltfläche „Bilderblitzen starten“", "default": "Bilderblitzen starten" },
         { "label": "Schaltfläche „Bild erneut anzeigen“", "default": "Bild erneut anzeigen" },
-        { "label": "Lademeldung", "default": "Bild wird geladen…" }
+        { "label": "Lademeldung", "default": "Bild wird geladen…" },
+        { "label": "Schaltfläche „Überprüfen“", "default": "Überprüfen" },
+        { "label": "Schaltfläche „Lösung anzeigen“", "default": "Lösung anzeigen" },
+        { "label": "Schaltfläche „Wiederholen“", "default": "Wiederholen" },
+        { "label": "Meldung „Nicht ausgefüllt“", "default": "Bitte fülle alle Lücken aus, um die Lösung ansehen zu können" },
+        { "label": "Beschriftung des Tipp-Symbols", "default": "Tipp" },
+        { "label": "Warnung bei Tippfehlern", "description": "@mistake zeigt das falsch geschriebene Wort.", "default": "Überprüfe die Rechtschreibung: @mistake" },
+        { "label": "Text der Punkteanzeige", "default": "Du hast :num von :total Punkten erreicht" }
       ]
     },
     {
@@ -47,10 +105,29 @@
       "fields": [
         { "label": "Beschriftung des Blitzbildbereichs", "default": "Blitzbild" },
         { "label": "Ansage Bilderblitzen gestartet", "default": "Bilderblitzen gestartet." },
-        {
-          "label": "Ansage Bilderblitzen beendet",
-          "default": "Bild ausgeblendet. Beantworte die Frage."
-        }
+        { "label": "Ansage Bilderblitzen beendet", "default": "Bild ausgeblendet. Beantworte die Frage." },
+        { "label": "Beschreibung der Schaltfläche „Überprüfen“", "default": "Antworten prüfen. Die Eingaben werden als richtig, falsch oder offen markiert." },
+        { "label": "Beschreibung der Schaltfläche „Lösung anzeigen“", "default": "Lösung anzeigen. Die Aufgabe wird mit der richtigen Lösung markiert." },
+        { "label": "Beschreibung der Schaltfläche „Wiederholen“", "default": "Aufgabe wiederholen. Alle Eingaben werden zurückgesetzt." },
+        { "label": "Beschreibung des Prüfmodus", "default": "Prüfmodus" }
+      ]
+    },
+    {
+      "label": "Bestätigungsdialog beim Prüfen",
+      "fields": [
+        { "label": "Text der Überschrift", "default": "Beenden?" },
+        { "label": "Text des Hauptteils", "default": "Ganz sicher beenden?" },
+        { "label": "Beschriftung des „Abbrechen“-Buttons", "default": "Abbrechen" },
+        { "label": "Beschriftung des „Beenden“-Buttons", "default": "Beenden" }
+      ]
+    },
+    {
+      "label": "Bestätigungsdialog beim Wiederholen",
+      "fields": [
+        { "label": "Text der Überschrift", "default": "Wiederholen?" },
+        { "label": "Text des Hauptteils", "default": "Ganz sicher wiederholen?" },
+        { "label": "Beschriftung des „Abbrechen“-Buttons", "default": "Abbrechen" },
+        { "label": "Beschriftung des „Bestätigen“-Buttons", "default": "Bestätigen" }
       ]
     }
   ]

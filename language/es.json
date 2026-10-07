@@ -7,31 +7,80 @@
     {
       "label": "Imagen flash",
       "fields": [
+        { "label": "Imagen", "description": "Imagen mostrada brevemente después de iniciar." },
+        { "label": "Texto alternativo", "description": "Describe la imagen flash para lectores de pantalla. Muy recomendable cuando la imagen aporta el significado de la tarea." },
+        { "label": "Duración de visualización (segundos)", "description": "Cuánto tiempo permanece visible la imagen tras el inicio. Rango permitido: 0,1–10 segundos." }
+      ]
+    },
+    {
+      "label": "Pregunta",
+      "fields": [
+        { "label": "Descripción de la tarea", "description": "Indica al alumno cómo responder.", "default": "<p>Escriba las palabras faltantes.</p>" },
+        { "label": "Texto con huecos", "description": "Marca cada hueco con tres o más guiones bajos (___). No escribas las respuestas en el texto." },
         {
-          "label": "Imagen",
-          "description": "Imagen mostrada brevemente después de iniciar."
-        },
-        {
-          "label": "Texto alternativo",
-          "description": "Describe la imagen flash para lectores de pantalla. Muy recomendable cuando la imagen aporta el significado de la tarea."
-        },
-        {
-          "label": "Duración de visualización (segundos)",
-          "description": "Cuánto tiempo permanece visible la imagen tras el inicio. Rango permitido: 0,1–10 segundos."
+          "label": "Respuestas",
+          "entity": "hueco",
+          "field": {
+            "label": "Hueco",
+            "fields": [
+              { "label": "Respuesta correcta", "description": "Una respuesta para este hueco, en el mismo orden que los huecos del texto. Separa alternativas con una barra (/)." }
+            ]
+          }
         }
       ]
     },
     {
-      "label": "Tarea",
-      "description": "Texto con huecos complejo que se muestra cuando la imagen se oculta."
-    },
-    {
-      "label": "Ajustes de comportamiento",
+      "label": "Retroalimentación global",
       "fields": [
         {
-          "label": "Máximo de visualizaciones",
-          "description": "Cuántas veces puede ver el alumno la imagen en un intento, incluido el primer destello. 0 significa ilimitado."
+          "label": "Definir retroalimentación personalizada para cualquier rango de puntaje",
+          "entity": "rango",
+          "field": {
+            "fields": [
+              { "label": "Rango de puntaje" },
+              {},
+              { "label": "Retroalimentación para el rango de puntaje definido" }
+            ]
+          }
         }
+      ]
+    },
+    {
+      "label": "Comportamiento",
+      "description": "Cuántas veces se puede ver la imagen y cómo se comporta el texto con huecos.",
+      "fields": [
+        { "label": "Máximo de visualizaciones", "description": "Cuántas veces puede ver el alumno la imagen en un intento, incluido el primer destello. 0 significa ilimitado." },
+        {
+          "label": "Modo de respuesta",
+          "options": [
+            { "label": "El usuario escribe las respuestas." },
+            { "label": "El usuario elige entre opciones." }
+          ]
+        },
+        {
+          "label": "Alternativas ofrecidas para selección",
+          "options": [
+            { "label": "Las respuestas incorrectas ingresadas para el hueco" },
+            { "label": "Las respuestas correctas de todos los otros huecos" }
+          ]
+        },
+        { "label": "Número máximo de alternativas de otros huecos", "description": "Escribe 0 para no limitar." },
+        {
+          "label": "Comportamiento ante un error de ortografía",
+          "options": [
+            { "label": "Aceptarla como una respuesta correcta" },
+            { "label": "Advertirle al usuario acerca del error" },
+            { "label": "Considerarla un error regular" }
+          ]
+        },
+        { "label": "Distinguir mayúsculas y minúsculas" },
+        { "label": "Revisar las respuestas automáticamente al escribirlas" },
+        { "label": "Habilitar el botón «Comprobar»" },
+        { "label": "Habilitar el botón «Mostrar solución»" },
+        { "label": "Exigir que todos los huecos estén contestados antes de ver la solución" },
+        { "label": "Habilitar «Reintentar»" },
+        { "label": "Mostrar diálogo de confirmación en «Comprobar»" },
+        { "label": "Mostrar diálogo de confirmación en «Reintentar»" }
       ]
     },
     {
@@ -39,7 +88,14 @@
       "fields": [
         { "label": "Botón iniciar destello", "default": "Iniciar destello de imagen" },
         { "label": "Botón volver a mostrar imagen", "default": "Mostrar imagen de nuevo" },
-        { "label": "Mensaje de carga", "default": "Cargando imagen…" }
+        { "label": "Mensaje de carga", "default": "Cargando imagen…" },
+        { "label": "Botón «Comprobar»", "default": "Comprobar" },
+        { "label": "Botón «Mostrar solución»", "default": "Mostrar solución" },
+        { "label": "Botón «Reintentar»", "default": "Reintentar" },
+        { "label": "Mensaje «No completado»", "default": "Por favor llene todos los huecos para ver la solución" },
+        { "label": "Etiqueta del icono de pista", "default": "Pista" },
+        { "label": "Aviso de error ortográfico", "default": "Revise su ortografía: @mistake" },
+        { "label": "Texto de la puntuación", "default": "Obtuvo :num de un total de :total puntos" }
       ]
     },
     {
@@ -47,10 +103,29 @@
       "fields": [
         { "label": "Etiqueta de la zona de imagen flash", "default": "Imagen flash" },
         { "label": "Anuncio destello iniciado", "default": "Destello de imagen iniciado." },
-        {
-          "label": "Anuncio destello finalizado",
-          "default": "Imagen oculta. Responde a la pregunta."
-        }
+        { "label": "Anuncio destello finalizado", "default": "Imagen oculta. Responde a la pregunta." },
+        { "label": "Descripción del botón «Comprobar»", "default": "Comprobar las respuestas. Se marcarán como correctas, incorrectas o sin responder." },
+        { "label": "Descripción del botón «Mostrar solución»", "default": "Mostrar la solución. La tarea se marcará con la respuesta correcta." },
+        { "label": "Descripción del botón «Reintentar»", "default": "Reintentar la tarea. Se borran todas las respuestas." },
+        { "label": "Descripción del modo de comprobación", "default": "Modo de comprobación" }
+      ]
+    },
+    {
+      "label": "Diálogo de confirmación para comprobar",
+      "fields": [
+        { "label": "Texto del encabezado", "default": "¿Terminado?" },
+        { "label": "Texto del cuerpo", "default": "¿Seguro que quiere terminar?" },
+        { "label": "Etiqueta del botón Cancelar", "default": "Cancelar" },
+        { "label": "Etiqueta del botón Confirmar", "default": "Terminar" }
+      ]
+    },
+    {
+      "label": "Diálogo de confirmación para reintentar",
+      "fields": [
+        { "label": "Texto del encabezado", "default": "¿Reintentar?" },
+        { "label": "Texto del cuerpo", "default": "¿Seguro que desea reintentar?" },
+        { "label": "Etiqueta del botón Cancelar", "default": "Cancelar" },
+        { "label": "Etiqueta del botón Confirmar", "default": "Confirmar" }
       ]
     }
   ]

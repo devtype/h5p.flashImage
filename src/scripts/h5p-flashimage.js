@@ -6,6 +6,7 @@ import {
   resolveDisplayDurationMs,
   resolveMaxFlashViews
 } from './services/scoring.js';
+import { buildAdvancedBlanksRunnable, liftNestedTask } from './services/blanks-params.js';
 
 const DEFAULTS = {
   intro: '',
@@ -14,14 +15,25 @@ const DEFAULTS = {
     alternativeText: '',
     displayDurationSec: 1
   },
-  task: null,
+  content: {
+    task: '',
+    blanksText: '',
+    blanksList: []
+  },
   behaviour: {
-    maxFlashViews: 1
+    maxFlashViews: 1,
+    mode: 'typing',
+    enableCheckButton: true,
+    enableSolutionsButton: true,
+    enableRetry: true
   },
   l10n: {
     startFlash: 'Start image flash',
     repeatFlash: 'Show image again',
-    loading: 'Loading image…'
+    loading: 'Loading image…',
+    checkAnswer: 'Check',
+    showSolutions: 'Show solution',
+    tryAgain: 'Retry'
   },
   a11y: {
     flashImageLabel: 'Flash image',
@@ -86,11 +98,15 @@ function isAnsweredEvent(event) {
 function FlashImage(params, contentId, extras) {
   const self = this;
   extras = extras || {};
-  const rawBehaviour = (params && params.behaviour) || {};
+  params = liftNestedTask(params || {});
+  // A one-field group is stored as the inner value, including 0 (unlimited).
+  const rawBehaviour = Object.prototype.hasOwnProperty.call(params, 'behaviour')
+    ? params.behaviour
+    : undefined;
 
   H5P.Question.call(self, 'flashimage');
 
-  self.params = mergeDefaults(params || {}, DEFAULTS);
+  self.params = mergeDefaults(params, DEFAULTS);
   if (!self.params.flashimage || typeof self.params.flashimage !== 'object') {
     self.params.flashimage = { ...DEFAULTS.flashimage };
   }
@@ -117,7 +133,20 @@ function FlashImage(params, contentId, extras) {
 
   self.flashStage = null;
   self.taskInstance = null;
+  self._taskAttachFailed = false;
   self._suppressChildResetHook = false;
+
+  // Question.attach inserts our DOM after registerDomElements returns.
+  // AdvancedBlanks looks up blank nodes by id, so it must be created only
+  // once that DOM is in the document.
+  const originalAttach = self.attach.bind(self);
+  self.attach = function ($container) {
+    originalAttach($container);
+    if (self.state.phase === 'question') {
+      self._ensureTask();
+      self._resize();
+    }
+  };
   self.wrapper = null;
   self.readyPanel = null;
   self.questionPanel = null;
@@ -193,7 +222,6 @@ FlashImage.prototype.registerDomElements = function () {
 
   // jQuery wrap so H5P.Question.register uses append() for the DOM node.
   self.setContent(H5P.jQuery ? H5P.jQuery(self.wrapper) : self.wrapper);
-  self._attachTask();
   self._applyPhaseUi();
 
   self.flashStage.preload().then(() => {
@@ -214,10 +242,21 @@ FlashImage.prototype.registerDomElements = function () {
   });
 };
 
+FlashImage.prototype._ensureTask = function () {
+  const self = this;
+  if (self.taskInstance || self._taskAttachFailed) {
+    return;
+  }
+  if (!self.taskContainer || !self.taskContainer.isConnected) {
+    return;
+  }
+  self._attachTask();
+};
+
 FlashImage.prototype._attachTask = function () {
   const self = this;
-  const taskParams = self.params.task;
-  if (!taskParams || !taskParams.library || typeof H5P.newRunnable !== 'function') {
+  const taskParams = buildAdvancedBlanksRunnable(self.params);
+  if (!taskParams.library || typeof H5P.newRunnable !== 'function') {
     return;
   }
 
@@ -236,10 +275,12 @@ FlashImage.prototype._attachTask = function () {
   }
   catch {
     self.taskInstance = null;
+    self._taskAttachFailed = true;
     return;
   }
 
   if (!self.taskInstance) {
+    self._taskAttachFailed = true;
     return;
   }
 
@@ -359,6 +400,10 @@ FlashImage.prototype._applyPhaseUi = function () {
 
   self.readyPanel.hidden = !isReady;
   self.questionPanel.hidden = !isQuestion;
+  if (isQuestion) {
+    // Mount only after the panel is visible and in the document.
+    self._ensureTask();
+  }
   if (!isFlashing && self.flashStage) {
     self.flashStage.hide();
   }
