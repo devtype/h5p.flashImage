@@ -1,17 +1,10 @@
 import FlashStage from './ui/flash-stage.js';
-import AnswerList from './ui/answer-list.js';
 import StateService from './services/state.js';
-import XapiService from './services/xapi.js';
 import {
-  hasAnswerGiven,
-  isSingleChoice,
-  normalizeOverallFeedbackRanges,
-  pickOverallFeedback,
+  canShowRepeatFlash,
+  hasFlashViewsRemaining,
   resolveDisplayDurationMs,
-  resolveMaxScore,
-  resolveScore,
-  shouldIncludeScoreInXapi,
-  shuffledIndexes
+  resolveMaxFlashViews
 } from './services/scoring.js';
 
 const DEFAULTS = {
@@ -21,54 +14,23 @@ const DEFAULTS = {
     alternativeText: '',
     displayDurationSec: 1
   },
-  question: '<p>What did you see?</p>',
-  answers: [],
-  overallFeedback: {
-    overallFeedback: []
-  },
+  task: null,
   behaviour: {
-    allowRepeatFlash: true,
-    enableCheckButton: true,
-    enableSolutionsButton: true,
-    enableRetry: true,
-    type: 'auto',
-    singlePoint: true,
-    randomAnswers: false,
-    maxScore: 1,
-    confirmCheckDialog: false,
-    confirmRetryDialog: false
+    maxFlashViews: 1
   },
   l10n: {
     startFlash: 'Start image flash',
     repeatFlash: 'Show image again',
-    loading: 'Loading image…',
-    checkAnswer: 'Check',
-    showSolution: 'Show solution',
-    retry: 'Retry',
-    scoreBarLabel: 'You got :num out of :total points',
-    noAnswer: 'Please select an answer before checking.'
-  },
-  confirmCheck: {
-    header: 'Finish ?',
-    body: 'Are you sure you wish to finish ?',
-    cancelLabel: 'Cancel',
-    confirmLabel: 'Finish'
-  },
-  confirmRetry: {
-    header: 'Retry ?',
-    body: 'Are you sure you wish to retry ?',
-    cancelLabel: 'Cancel',
-    confirmLabel: 'Confirm'
+    loading: 'Loading image…'
   },
   a11y: {
     flashImageLabel: 'Flash image',
-    answersLabel: 'Answer options',
-    correctAnswer: 'Correct answer',
-    wrongAnswer: 'Wrong answer',
     flashStarted: 'Image flash started.',
     flashEnded: 'Image hidden. Answer the question.'
   }
 };
+
+const VERB_ANSWERED = 'http://adlnet.gov/expapi/verbs/answered';
 
 /**
  * Deep merge defaults into params (params win).
@@ -92,11 +54,30 @@ function mergeDefaults(target, source) {
 }
 
 /**
+ * @param {object|undefined} event
+ * @returns {boolean}
+ */
+function isAnsweredEvent(event) {
+  if (!event) {
+    return false;
+  }
+  if (typeof event.getVerb === 'function' && event.getVerb() === 'answered') {
+    return true;
+  }
+  const statement = event.data && event.data.statement;
+  const verbId = statement && statement.verb && statement.verb.id;
+  return verbId === VERB_ANSWERED;
+}
+
+/**
  * H5P.FlashImage (Bilderblitzen) question type.
  *
  * Uses the standard H5P constructor + prototype pattern required by
  * H5P.newRunnable's ContentType mixin. ES6 `class extends H5P.Question`
  * breaks that chain.
+ *
+ * The fill-in task is an H5P.AdvancedBlanks instance. Scoring, check,
+ * solutions, retry feedback, and xAPI belong to that child.
  *
  * @param {object} params
  * @param {number} contentId
@@ -105,52 +86,42 @@ function mergeDefaults(target, source) {
 function FlashImage(params, contentId, extras) {
   const self = this;
   extras = extras || {};
+  const rawBehaviour = (params && params.behaviour) || {};
 
   H5P.Question.call(self, 'flashimage');
 
   self.params = mergeDefaults(params || {}, DEFAULTS);
-  if (!Array.isArray(self.params.answers)) {
-    self.params.answers = [];
-  }
   if (!self.params.flashimage || typeof self.params.flashimage !== 'object') {
     self.params.flashimage = { ...DEFAULTS.flashimage };
   }
   if (!self.params.behaviour || typeof self.params.behaviour !== 'object') {
     self.params.behaviour = { ...DEFAULTS.behaviour };
   }
+  self.maxFlashViews = resolveMaxFlashViews(rawBehaviour);
+  self.params.behaviour.maxFlashViews = self.maxFlashViews;
+
   self.contentId = contentId;
   self.extras = extras;
   self.previousState = extras.previousState || null;
 
   self.durationMs = resolveDisplayDurationMs(self.params.flashimage);
-  self.singleChoice = isSingleChoice({
-    type: self.params.behaviour.type,
-    answers: self.params.answers
-  });
 
   const restored = StateService.normalize(self.previousState);
-  // Must not use self.order — H5P.Question stores section layout order there.
-  self.answerOrder = restored.answerOrder;
-  if (!self.answerOrder) {
-    const length = self.params.answers.length;
-    self.answerOrder = self.params.behaviour.randomAnswers
-      ? shuffledIndexes(length)
-      : Array.from({ length }, (_, i) => i);
-  }
-
+  self.flashesUsed = restored.flashesUsed;
   self.state = {
     phase: 'loading',
-    selectedIndexes: restored.selectedIndexes,
     submitted: restored.submitted,
-    solutionsShown: restored.solutionsShown,
     preloadDone: false
   };
+  self.taskState = restored.taskState;
 
   self.flashStage = null;
-  self.answerList = null;
+  self.taskInstance = null;
+  self._suppressChildResetHook = false;
   self.wrapper = null;
   self.readyPanel = null;
   self.questionPanel = null;
+  self.taskContainer = null;
   self.startButton = null;
   self.repeatButton = null;
   self.introEl = null;
@@ -204,33 +175,17 @@ FlashImage.prototype.registerDomElements = function () {
   self.questionPanel.classList.add('h5p-flashimage__question-panel');
   self.questionPanel.hidden = true;
 
-  const questionEl = document.createElement('div');
-  questionEl.classList.add('h5p-flashimage__question');
-  questionEl.innerHTML = self.params.question || '';
-  self.questionPanel.appendChild(questionEl);
+  self.repeatButton = document.createElement('button');
+  self.repeatButton.type = 'button';
+  self.repeatButton.classList.add('h5p-flashimage__repeat');
+  self.repeatButton.textContent = l10n.repeatFlash;
+  self.repeatButton.hidden = true;
+  self.repeatButton.addEventListener('click', () => self._startFlash(true));
+  self.questionPanel.appendChild(self.repeatButton);
 
-  if (self.params.behaviour.allowRepeatFlash) {
-    self.repeatButton = document.createElement('button');
-    self.repeatButton.type = 'button';
-    self.repeatButton.classList.add('h5p-flashimage__repeat');
-    self.repeatButton.textContent = l10n.repeatFlash;
-    self.repeatButton.addEventListener('click', () => self._startFlash(true));
-    self.questionPanel.appendChild(self.repeatButton);
-  }
-
-  self.answerList = new AnswerList({
-    answers: self.params.answers,
-    order: self.answerOrder,
-    singleChoice: self.singleChoice,
-    groupLabel: a11y.answersLabel,
-    correctLabel: a11y.correctAnswer,
-    wrongLabel: a11y.wrongAnswer,
-    onChange: (indexes) => {
-      self.state.selectedIndexes = indexes;
-      self._updateButtonAvailability();
-    }
-  });
-  self.questionPanel.appendChild(self.answerList.getElement());
+  self.taskContainer = document.createElement('div');
+  self.taskContainer.classList.add('h5p-flashimage__task');
+  self.questionPanel.appendChild(self.taskContainer);
 
   self.wrapper.appendChild(self.readyPanel);
   self.wrapper.appendChild(self.flashStage.getElement());
@@ -238,13 +193,12 @@ FlashImage.prototype.registerDomElements = function () {
 
   // jQuery wrap so H5P.Question.register uses append() for the DOM node.
   self.setContent(H5P.jQuery ? H5P.jQuery(self.wrapper) : self.wrapper);
-  self._registerButtons();
+  self._attachTask();
   self._applyPhaseUi();
 
   self.flashStage.preload().then(() => {
     self.state.preloadDone = true;
     self.state.phase = self.state.phase === 'loading' ? 'ready' : self.state.phase;
-    self.startButton.disabled = false;
     self.loadingNote.hidden = true;
     if (self.previousState) {
       self._restoreFromPreviousState();
@@ -252,92 +206,73 @@ FlashImage.prototype.registerDomElements = function () {
     else {
       self._applyPhaseUi();
     }
-    self._updateButtonAvailability();
   }).catch(() => {
-    // Preload helpers always settle; keep UI usable if anything unexpected throws.
     self.state.preloadDone = true;
     self.state.phase = 'ready';
-    self.startButton.disabled = false;
     self.loadingNote.hidden = true;
     self._applyPhaseUi();
   });
 };
 
-FlashImage.prototype._registerButtons = function () {
+FlashImage.prototype._attachTask = function () {
   const self = this;
-  const l10n = self.params.l10n;
-  const behaviour = self.params.behaviour;
-
-  if (behaviour.enableCheckButton !== false) {
-    self.addButton(
-      'check-answer',
-      l10n.checkAnswer,
-      () => self._onCheck(),
-      false,
-      { 'aria-label': l10n.checkAnswer },
-      {
-        confirmationDialog: {
-          enable: !!behaviour.confirmCheckDialog,
-          l10n: self.params.confirmCheck,
-          instance: self
-        }
-      }
-    );
+  const taskParams = self.params.task;
+  if (!taskParams || !taskParams.library || typeof H5P.newRunnable !== 'function') {
+    return;
   }
 
-  if (behaviour.enableSolutionsButton !== false) {
-    self.addButton(
-      'show-solution',
-      l10n.showSolution,
-      () => self.showSolutions(),
-      false,
-      { 'aria-label': l10n.showSolution },
-      {}
+  const $container = H5P.jQuery
+    ? H5P.jQuery(self.taskContainer)
+    : self.taskContainer;
+
+  try {
+    self.taskInstance = H5P.newRunnable(
+      taskParams,
+      self.contentId,
+      $container,
+      true,
+      { previousState: self.taskState }
     );
   }
+  catch {
+    self.taskInstance = null;
+    return;
+  }
 
-  if (behaviour.enableRetry !== false) {
-    self.addButton(
-      'try-again',
-      l10n.retry,
-      () => self.resetTask(),
-      false,
-      { 'aria-label': l10n.retry },
-      {
-        confirmationDialog: {
-          enable: !!behaviour.confirmRetryDialog,
-          l10n: self.params.confirmRetry,
-          instance: self
-        }
+  if (!self.taskInstance) {
+    return;
+  }
+
+  if (typeof self.taskInstance.resetTask === 'function') {
+    const originalReset = self.taskInstance.resetTask.bind(self.taskInstance);
+    self.taskInstance.resetTask = function () {
+      const result = originalReset();
+      if (!self._suppressChildResetHook) {
+        self._onChildRetry();
       }
-    );
+      return result;
+    };
+  }
+
+  if (typeof self.taskInstance.on === 'function') {
+    self.taskInstance.on('resize', () => self._resize());
+    self.taskInstance.on('xAPI', (event) => {
+      if (!isAnsweredEvent(event)) {
+        return;
+      }
+      self.state.submitted = true;
+      self._applyPhaseUi();
+    });
   }
 };
 
 FlashImage.prototype._restoreFromPreviousState = function () {
   const self = this;
   const restored = StateService.normalize(self.previousState);
-
-  self.state.selectedIndexes = restored.selectedIndexes;
+  self.flashesUsed = restored.flashesUsed;
   self.state.submitted = restored.submitted;
-  self.state.solutionsShown = restored.solutionsShown;
-  self.answerList.setSelectedIndexes(restored.selectedIndexes);
-
-  if (restored.phase === 'question' || restored.submitted) {
-    self.state.phase = 'question';
-  }
-  else {
-    self.state.phase = 'ready';
-  }
-
+  self.state.phase = restored.phase === 'question' ? 'question' : 'ready';
   self._applyPhaseUi();
-
-  if (self.state.submitted) {
-    self.answerList.setDisabled(true);
-    self.answerList.showSolutions(true);
-    self._toggleButtonsForSubmitted();
-    self._setScoreFeedback();
-  }
 };
 
 /**
@@ -345,60 +280,71 @@ FlashImage.prototype._restoreFromPreviousState = function () {
  */
 FlashImage.prototype._startFlash = function (fromRepeat) {
   const self = this;
-  if (!self.state.preloadDone) {
+  if (!self.state.preloadDone || self.state.phase === 'flashing' || self.state.submitted) {
     return;
   }
-  if (self.state.phase === 'flashing') {
+  if (fromRepeat && !canShowRepeatFlash({
+    phase: 'question',
+    submitted: false,
+    flashesUsed: self.flashesUsed,
+    maxFlashViews: self.maxFlashViews
+  })) {
     return;
   }
-  if (self.state.submitted && fromRepeat) {
+  if (!hasFlashViewsRemaining(self.flashesUsed, self.maxFlashViews)) {
     return;
   }
 
+  self.flashesUsed += 1;
   self.state.phase = 'flashing';
   self._applyPhaseUi();
   self._announce(self.params.a11y.flashStarted);
 
-  // Always advance to the question after the configured duration, even if the
-  // image failed to load (otherwise Start appears clickable but does nothing).
   self.flashStage.flash(self.durationMs, () => {
     self.state.phase = 'question';
     self._applyPhaseUi();
     self._announce(self.params.a11y.flashEnded);
-    self._updateButtonAvailability();
-    self._focusQuestion();
+    self._focusTask();
   });
-  // Stage becomes visible inside flash(); resize after that layout change.
   self._resize();
+};
+
+FlashImage.prototype._onChildRetry = function () {
+  const self = this;
+  if (self.flashStage) {
+    self.flashStage.clearTimer();
+    self.flashStage.hide();
+  }
+  self.flashesUsed = 0;
+  self.state.submitted = false;
+  self.state.phase = 'ready';
+  self._applyPhaseUi();
 };
 
 FlashImage.prototype._resize = function () {
   const self = this;
   self.trigger('resize');
-  // Second pass after the browser paints (image/answer layout can settle late).
   window.requestAnimationFrame(() => {
     self.trigger('resize');
   });
 };
 
-FlashImage.prototype._focusQuestion = function () {
+FlashImage.prototype._focusTask = function () {
   const self = this;
-  if (!self.questionPanel || self.questionPanel.hidden) {
+  if (!self.taskContainer || self.questionPanel.hidden) {
     return;
   }
-  const firstInput = self.questionPanel.querySelector(
-    '.h5p-flashimage__answer-input:not([disabled])'
-  );
-  const target = firstInput || self.questionPanel;
-  if (target === self.questionPanel && !self.questionPanel.hasAttribute('tabindex')) {
-    self.questionPanel.setAttribute('tabindex', '-1');
+  const target = self.taskContainer.querySelector(
+    'input:not([disabled]), textarea:not([disabled]), [contenteditable="true"]'
+  ) || self.taskContainer;
+  if (target === self.taskContainer && !self.taskContainer.hasAttribute('tabindex')) {
+    self.taskContainer.setAttribute('tabindex', '-1');
   }
   window.requestAnimationFrame(() => {
     try {
       target.focus({ preventScroll: true });
     }
     catch {
-      // Older browsers may not support focus options.
       target.focus();
     }
   });
@@ -407,113 +353,31 @@ FlashImage.prototype._focusQuestion = function () {
 FlashImage.prototype._applyPhaseUi = function () {
   const self = this;
   const phase = self.state.phase;
-
   const isReady = phase === 'ready' || phase === 'loading';
   const isFlashing = phase === 'flashing';
   const isQuestion = phase === 'question';
 
   self.readyPanel.hidden = !isReady;
   self.questionPanel.hidden = !isQuestion;
-  if (!isFlashing) {
+  if (!isFlashing && self.flashStage) {
     self.flashStage.hide();
   }
 
-  if (self.repeatButton) {
-    self.repeatButton.hidden = !isQuestion || self.state.submitted
-      || !self.params.behaviour.allowRepeatFlash;
-    self.repeatButton.disabled = self.state.submitted || isFlashing;
+  if (self.startButton) {
+    self.startButton.disabled = !self.state.preloadDone
+      || !hasFlashViewsRemaining(self.flashesUsed, self.maxFlashViews);
   }
 
-  if (isReady) {
-    self.hideButton('check-answer');
-    self.hideButton('show-solution');
-    self.hideButton('try-again');
+  if (self.repeatButton) {
+    self.repeatButton.hidden = !canShowRepeatFlash({
+      phase,
+      submitted: self.state.submitted,
+      flashesUsed: self.flashesUsed,
+      maxFlashViews: self.maxFlashViews
+    });
   }
 
   self._resize();
-};
-
-FlashImage.prototype._updateButtonAvailability = function () {
-  const self = this;
-  if (self.state.phase !== 'question' || self.state.submitted) {
-    return;
-  }
-  if (self.params.behaviour.enableCheckButton !== false) {
-    if (hasAnswerGiven(self.state.selectedIndexes)) {
-      self.showButton('check-answer');
-    }
-    else {
-      self.hideButton('check-answer');
-    }
-  }
-};
-
-FlashImage.prototype._feedbackText = function (score, maxScore) {
-  const self = this;
-  const ratio = maxScore > 0 ? score / maxScore : 0;
-  const ranges = normalizeOverallFeedbackRanges(self.params.overallFeedback);
-  let text = '';
-  if (typeof H5P !== 'undefined' && H5P.Question
-    && typeof H5P.Question.determineOverallFeedback === 'function') {
-    text = H5P.Question.determineOverallFeedback(ranges, ratio) || '';
-  }
-  else {
-    text = pickOverallFeedback(ranges, ratio);
-  }
-  return text;
-};
-
-FlashImage.prototype._setScoreFeedback = function () {
-  const self = this;
-  const score = self.getScore();
-  const maxScore = self.getMaxScore();
-  self.setFeedback(
-    self._feedbackText(score, maxScore),
-    score,
-    maxScore,
-    self.params.l10n.scoreBarLabel
-  );
-};
-
-FlashImage.prototype._onCheck = function () {
-  const self = this;
-  if (self.state.phase !== 'question' || self.state.submitted) {
-    return;
-  }
-  if (!hasAnswerGiven(self.state.selectedIndexes)) {
-    self._announce(self.params.l10n.noAnswer);
-    return;
-  }
-
-  self.state.submitted = true;
-  self.answerList.setDisabled(true);
-  // Mark correct/wrong immediately on check (MultiChoice parity).
-  self.answerList.showSolutions(true);
-  self.state.solutionsShown = true;
-  if (self.repeatButton) {
-    self.repeatButton.hidden = true;
-  }
-
-  self._setScoreFeedback();
-  self._toggleButtonsForSubmitted();
-  self.triggerXAPIAnswered();
-};
-
-FlashImage.prototype._toggleButtonsForSubmitted = function () {
-  const self = this;
-  self.hideButton('check-answer');
-  if (self.params.behaviour.enableSolutionsButton !== false) {
-    self.showButton('show-solution');
-  }
-  if (self.params.behaviour.enableRetry !== false) {
-    self.showButton('try-again');
-  }
-};
-
-FlashImage.prototype._scoreLabel = function (score, max) {
-  return String(this.params.l10n.scoreBarLabel || '')
-    .replace(':num', String(score))
-    .replace(':total', String(max));
 };
 
 FlashImage.prototype._announce = function (message) {
@@ -522,26 +386,27 @@ FlashImage.prototype._announce = function (message) {
   }
 };
 
-FlashImage.prototype._scoreContext = function () {
-  return {
-    submitted: this.state.submitted,
-    selectedIndexes: this.state.selectedIndexes,
-    answers: this.params.answers,
-    singlePoint: this.params.behaviour.singlePoint !== false,
-    maxScore: this.params.behaviour.maxScore
-  };
+FlashImage.prototype._childCall = function (method, fallback) {
+  const task = this.taskInstance;
+  if (task && typeof task[method] === 'function') {
+    return task[method]();
+  }
+  return fallback;
 };
 
 FlashImage.prototype.getAnswerGiven = function () {
-  return hasAnswerGiven(this.state.selectedIndexes);
+  const given = this._childCall('getAnswerGiven', false);
+  return !!given;
 };
 
 FlashImage.prototype.getScore = function () {
-  return resolveScore(this._scoreContext());
+  const score = Number(this._childCall('getScore', 0));
+  return Number.isFinite(score) ? score : 0;
 };
 
 FlashImage.prototype.getMaxScore = function () {
-  return resolveMaxScore(this._scoreContext());
+  const max = Number(this._childCall('getMaxScore', 0));
+  return Number.isFinite(max) ? max : 0;
 };
 
 FlashImage.prototype.showSolutions = function () {
@@ -550,78 +415,39 @@ FlashImage.prototype.showSolutions = function () {
     self.state.phase = 'question';
     self._applyPhaseUi();
   }
-  self.state.solutionsShown = true;
-  self.answerList.showSolutions(true);
-  self.hideButton('show-solution');
+  if (self.taskInstance && typeof self.taskInstance.showSolutions === 'function') {
+    self.taskInstance.showSolutions();
+  }
 };
 
 FlashImage.prototype.resetTask = function () {
   const self = this;
-  self.flashStage.clearTimer();
-  self.flashStage.hide();
-  self.state.phase = 'ready';
-  self.state.selectedIndexes = [];
-  self.state.submitted = false;
-  self.state.solutionsShown = false;
-  self.answerList.reset();
-  if (typeof self.removeFeedback === 'function') {
-    self.removeFeedback();
+  self._suppressChildResetHook = true;
+  if (self.taskInstance && typeof self.taskInstance.resetTask === 'function') {
+    self.taskInstance.resetTask();
   }
-  self.hideButton('check-answer');
-  self.hideButton('show-solution');
-  self.hideButton('try-again');
-  self._applyPhaseUi();
-  self._updateButtonAvailability();
+  self._suppressChildResetHook = false;
+  self._onChildRetry();
 };
 
 FlashImage.prototype.getCurrentState = function () {
+  let taskState;
+  if (this.taskInstance && typeof this.taskInstance.getCurrentState === 'function') {
+    taskState = this.taskInstance.getCurrentState();
+  }
   return StateService.serialize({
     phase: this.state.phase,
-    selectedIndexes: this.state.selectedIndexes,
+    flashesUsed: this.flashesUsed,
     submitted: this.state.submitted,
-    solutionsShown: this.state.solutionsShown,
-    answerOrder: this.answerOrder
+    taskState
   });
-};
-
-FlashImage.prototype.triggerXAPIAnswered = function () {
-  const self = this;
-  const xapiEvent = self.createXAPIEventTemplate('answered');
-  const score = self.getScore();
-  const maxScore = self.getMaxScore();
-
-  XapiService.decorate(xapiEvent, {
-    params: self.params,
-    selectedIndexes: self.state.selectedIndexes,
-    answers: self.params.answers,
-    score,
-    maxScore,
-    includeScore: shouldIncludeScoreInXapi({ submitted: self.state.submitted }),
-    success: score >= maxScore && maxScore > 0,
-    getTitle: () => self.getTitle()
-  });
-
-  self.trigger(xapiEvent);
 };
 
 FlashImage.prototype.getXAPIData = function () {
-  const self = this;
-  const xapiEvent = self.createXAPIEventTemplate('answered');
-  const score = self.getScore();
-  const maxScore = self.getMaxScore();
-
-  XapiService.decorate(xapiEvent, {
-    params: self.params,
-    selectedIndexes: self.state.selectedIndexes,
-    answers: self.params.answers,
-    score,
-    maxScore,
-    includeScore: shouldIncludeScoreInXapi({ submitted: self.state.submitted }),
-    success: self.state.submitted && score >= maxScore && maxScore > 0,
-    getTitle: () => self.getTitle()
-  });
-
-  return { statement: xapiEvent.data.statement };
+  if (this.taskInstance && typeof this.taskInstance.getXAPIData === 'function') {
+    return this.taskInstance.getXAPIData();
+  }
+  return {};
 };
 
 FlashImage.prototype.getTitle = function () {

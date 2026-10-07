@@ -22,71 +22,16 @@
       ]
     },
     {
-      "label": "Vraag",
-      "description": "Vraag die na de beeldflits wordt getoond.",
-      "default": "<p>Wat heb je gezien?</p>"
-    },
-    {
-      "label": "Antwoordopties",
-      "entity": "optie",
-      "field": {
-        "label": "Optie",
-        "fields": [
-          { "label": "Tekst" },
-          { "label": "Correct" }
-        ]
-      }
-    },
-    {
-      "label": "Algemene feedback",
-      "fields": [
-        {
-          "label": "Aangepaste feedback voor scorebereiken definiëren",
-          "description": "Klik op „Bereik toevoegen” om zoveel bereiken toe te voegen als nodig. Voorbeeld: 0-20% lage score, 21-91% gemiddeld, 91-100% uitstekend!",
-          "entity": "bereik",
-          "field": {
-            "fields": [
-              { "label": "Scorebereik" },
-              {},
-              {
-                "label": "Feedback voor het gedefinieerde scorebereik",
-                "placeholder": "Feedback invullen"
-              }
-            ]
-          }
-        }
-      ]
+      "label": "Taak",
+      "description": "Complexe invultekst die wordt getoond nadat de afbeelding verborgen is."
     },
     {
       "label": "Gedragsinstellingen",
       "fields": [
         {
-          "label": "Herhalen van de beeldflits toestaan",
-          "description": "Indien ingeschakeld zien leerlingen een aparte knop om de afbeelding opnieuw te tonen tijdens het beantwoorden."
-        },
-        { "label": "Knop „Controleren” inschakelen" },
-        { "label": "Knop „Toon oplossing” inschakelen" },
-        { "label": "Knop „Opnieuw” inschakelen" },
-        {
-          "label": "Vraagtype",
-          "description": "Automatisch gebruikt keuzerondjes bij één juist antwoord en selectievakjes bij meerdere.",
-          "options": [
-            { "label": "Automatisch" },
-            { "label": "Enkele keuze (keuzerondjes)" },
-            { "label": "Meerkeuze (selectievakjes)" }
-          ]
-        },
-        {
-          "label": "Eén punt voor de hele taak",
-          "description": "Indien ingeschakeld krijgen leerlingen de volle score of nul (alles-of-niets)."
-        },
-        { "label": "Antwoorden willekeurig ordenen" },
-        {
-          "label": "Maximale score",
-          "description": "Gebruikt wanneer „Eén punt voor de hele taak” is uitgeschakeld. In één-puntmodus is de effectieve max-score 1."
-        },
-        { "label": "Bevestigingsdialoog tonen bij „Controleren”" },
-        { "label": "Bevestigingsdialoog tonen bij „Opnieuw”" }
+          "label": "Maximum aantal weergaven",
+          "description": "Hoe vaak de leerling de afbeelding in één poging mag zien, inclusief de eerste flits. 0 betekent onbeperkt."
+        }
       ]
     },
     {
@@ -94,46 +39,13 @@
       "fields": [
         { "label": "Knop start flits", "default": "Beeldflits starten" },
         { "label": "Knop toon afbeelding opnieuw", "default": "Afbeelding opnieuw tonen" },
-        { "label": "Laadbericht", "default": "Afbeelding laden…" },
-        { "label": "Knop controleren", "default": "Controleren" },
-        { "label": "Knop toon oplossing", "default": "Toon oplossing" },
-        { "label": "Knop opnieuw", "default": "Opnieuw" },
-        {
-          "label": "Label van de scorebalk",
-          "description": "Beschikbare variabelen: :num en :total",
-          "default": "Je hebt :num van de :total punten"
-        },
-        {
-          "label": "Geen antwoord geselecteerd",
-          "default": "Selecteer een antwoord voordat je controleert."
-        }
-      ]
-    },
-    {
-      "label": "Bevestigingsdialoog „Controleren”",
-      "fields": [
-        { "label": "Koptekst", "default": "Afronden?" },
-        { "label": "Tekst", "default": "Weet je zeker dat je wilt afronden?" },
-        { "label": "Label Annuleren", "default": "Annuleren" },
-        { "label": "Label Bevestigen", "default": "Afronden" }
-      ]
-    },
-    {
-      "label": "Bevestigingsdialoog „Opnieuw”",
-      "fields": [
-        { "label": "Koptekst", "default": "Opnieuw?" },
-        { "label": "Tekst", "default": "Weet je zeker dat je opnieuw wilt beginnen?" },
-        { "label": "Label Annuleren", "default": "Annuleren" },
-        { "label": "Label Bevestigen", "default": "Bevestigen" }
+        { "label": "Laadbericht", "default": "Afbeelding laden…" }
       ]
     },
     {
       "label": "Toegankelijkheid",
       "fields": [
         { "label": "Label flitsbeeldgebied", "default": "Flitsbeeld" },
-        { "label": "Label antwoordopties", "default": "Antwoordopties" },
-        { "label": "Aankondiging juist antwoord", "default": "Juist antwoord" },
-        { "label": "Aankondiging onjuist antwoord", "default": "Onjuist antwoord" },
         { "label": "Aankondiging flits gestart", "default": "Beeldflits gestart." },
         {
           "label": "Aankondiging flits beëindigd",

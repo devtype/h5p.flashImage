@@ -22,71 +22,16 @@
       ]
     },
     {
-      "label": "Question",
-      "description": "Question shown after the image flash ends.",
-      "default": "<p>What did you see?</p>"
-    },
-    {
-      "label": "Answer options",
-      "entity": "option",
-      "field": {
-        "label": "Option",
-        "fields": [
-          { "label": "Text" },
-          { "label": "Correct" }
-        ]
-      }
-    },
-    {
-      "label": "Overall Feedback",
-      "fields": [
-        {
-          "label": "Define custom feedback for any score range",
-          "description": "Click the \"Add range\" button to add as many ranges as you need. Example: 0-20% Bad score, 21-91% Average Score, 91-100% Great Score!",
-          "entity": "range",
-          "field": {
-            "fields": [
-              { "label": "Score Range" },
-              {},
-              {
-                "label": "Feedback for defined score range",
-                "placeholder": "Fill in the feedback"
-              }
-            ]
-          }
-        }
-      ]
+      "label": "Task",
+      "description": "Complex fill in the blanks task shown after the image is hidden."
     },
     {
       "label": "Behavioural settings",
       "fields": [
         {
-          "label": "Allow repeating the image flash",
-          "description": "When enabled, learners see a separate button to flash the image again while answering."
-        },
-        { "label": "Enable \"Check\" button" },
-        { "label": "Enable \"Show solution\" button" },
-        { "label": "Enable \"Retry\" button" },
-        {
-          "label": "Question type",
-          "description": "Automatic uses radio buttons for one correct answer and checkboxes for several.",
-          "options": [
-            { "label": "Automatic" },
-            { "label": "Single choice (radio buttons)" },
-            { "label": "Multiple choice (checkboxes)" }
-          ]
-        },
-        {
-          "label": "Give one point for the whole task",
-          "description": "When enabled, learners get either full score or zero (all-or-nothing)."
-        },
-        { "label": "Randomize answers" },
-        {
-          "label": "Maximum score",
-          "description": "Used when \"Give one point for the whole task\" is disabled. With single-point mode the effective max score is 1."
-        },
-        { "label": "Show confirmation dialog on \"Check\"" },
-        { "label": "Show confirmation dialog on \"Retry\"" }
+          "label": "Maximum flash views",
+          "description": "How many times the learner may see the image in one attempt, including the first flash. Use 0 for unlimited."
+        }
       ]
     },
     {
@@ -94,46 +39,13 @@
       "fields": [
         { "label": "Start flash button", "default": "Start image flash" },
         { "label": "Repeat flash button", "default": "Show image again" },
-        { "label": "Loading message", "default": "Loading image…" },
-        { "label": "Check button", "default": "Check" },
-        { "label": "Show solution button", "default": "Show solution" },
-        { "label": "Retry button", "default": "Retry" },
-        {
-          "label": "Score bar label",
-          "description": "Available variables: :num and :total",
-          "default": "You got :num out of :total points"
-        },
-        {
-          "label": "No answer selected",
-          "default": "Please select an answer before checking."
-        }
-      ]
-    },
-    {
-      "label": "Check confirmation dialog",
-      "fields": [
-        { "label": "Header text", "default": "Finish ?" },
-        { "label": "Body text", "default": "Are you sure you wish to finish ?" },
-        { "label": "Cancel button label", "default": "Cancel" },
-        { "label": "Confirm button label", "default": "Finish" }
-      ]
-    },
-    {
-      "label": "Retry confirmation dialog",
-      "fields": [
-        { "label": "Header text", "default": "Retry ?" },
-        { "label": "Body text", "default": "Are you sure you wish to retry ?" },
-        { "label": "Cancel button label", "default": "Cancel" },
-        { "label": "Confirm button label", "default": "Confirm" }
+        { "label": "Loading message", "default": "Loading image…" }
       ]
     },
     {
       "label": "Accessibility translations",
       "fields": [
         { "label": "Flash image region label", "default": "Flash image" },
-        { "label": "Answer options label", "default": "Answer options" },
-        { "label": "Correct answer announcement", "default": "Correct answer" },
-        { "label": "Wrong answer announcement", "default": "Wrong answer" },
         { "label": "Flash started announcement", "default": "Image flash started." },
         {
           "label": "Flash ended announcement",

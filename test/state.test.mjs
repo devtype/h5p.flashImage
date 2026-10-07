@@ -3,49 +3,51 @@ import assert from 'node:assert/strict';
 import StateService from '../src/scripts/services/state.js';
 
 describe('StateService', () => {
-  it('serializes learner state without media', () => {
+  it('serializes flash progress and child task state', () => {
+    const taskState = { blanks: [1] };
     const state = StateService.serialize({
       phase: 'question',
-      selectedIndexes: [2, 0],
+      flashesUsed: 2,
       submitted: true,
-      solutionsShown: false,
-      answerOrder: [1, 0, 2]
+      taskState
     });
-    assert.equal(state.v, 2);
+    assert.equal(state.v, 3);
     assert.equal(state.phase, 'question');
-    assert.deepEqual(state.selectedIndexes, [2, 0]);
+    assert.equal(state.flashesUsed, 2);
     assert.equal(state.submitted, true);
-    assert.deepEqual(state.answerOrder, [1, 0, 2]);
+    assert.deepEqual(state.taskState, taskState);
+    assert.equal(state.selectedIndexes, undefined);
   });
 
-  it('accepts legacy order key from older saved state', () => {
-    const restored = StateService.normalize({
-      phase: 'question',
-      selectedIndexes: [0],
-      order: [2, 1, 0]
-    });
-    assert.deepEqual(restored.answerOrder, [2, 1, 0]);
-  });
-
-  it('normalizes flashing/loading phases on restore', () => {
-    const flashing = StateService.normalize({
+  it('stores an in-progress flash as the question phase', () => {
+    const state = StateService.serialize({
       phase: 'flashing',
-      selectedIndexes: [1],
+      flashesUsed: 1,
       submitted: false
     });
-    assert.equal(flashing.phase, 'ready');
+    assert.equal(state.phase, 'question');
+    assert.equal(state.flashesUsed, 1);
+  });
 
-    const submittedFlash = StateService.normalize({
+  it('normalizes flashing and loading phases on restore', () => {
+    const flashing = StateService.normalize({
       phase: 'flashing',
-      selectedIndexes: [1],
-      submitted: true
+      flashesUsed: 1,
+      submitted: false
     });
-    assert.equal(submittedFlash.phase, 'question');
+    assert.equal(flashing.phase, 'question');
+    assert.equal(flashing.flashesUsed, 1);
+
+    const loading = StateService.normalize({ phase: 'loading' });
+    assert.equal(loading.phase, 'ready');
+    assert.equal(loading.flashesUsed, 0);
   });
 
   it('handles empty input', () => {
     const empty = StateService.normalize(null);
     assert.equal(empty.phase, 'ready');
-    assert.deepEqual(empty.selectedIndexes, []);
+    assert.equal(empty.flashesUsed, 0);
+    assert.equal(empty.submitted, false);
+    assert.equal(empty.taskState, undefined);
   });
 });

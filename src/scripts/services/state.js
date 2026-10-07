@@ -1,12 +1,12 @@
 /**
  * State serialization helpers for H5P.FlashImage.
  *
- * Flash media lives in params and is not stored in state.
- * Answer shuffle order is stored as `answerOrder` (never touch H5P.Question's
- * instance `order`, which is the section layout order).
+ * Flash media and the AdvancedBlanks task params live in content params.
+ * Learner progress stores the phase, how many flashes were used, and the
+ * child task state.
  */
 
-const STATE_VERSION = 2;
+const STATE_VERSION = 3;
 
 /** @typedef {'loading'|'ready'|'flashing'|'question'} Phase */
 
@@ -14,23 +14,20 @@ const StateService = {
   /**
    * @param {object} extra
    * @param {Phase} extra.phase
-   * @param {number[]} extra.selectedIndexes
+   * @param {number} extra.flashesUsed
    * @param {boolean} extra.submitted
-   * @param {boolean} extra.solutionsShown
-   * @param {number[]} [extra.answerOrder]
+   * @param {object|undefined} extra.taskState
    * @returns {object}
    */
   serialize(extra = {}) {
+    const used = Math.max(0, Math.floor(Number(extra.flashesUsed) || 0));
     return {
       v: STATE_VERSION,
       phase: extra.phase === 'flashing' ? 'question' : (extra.phase || 'ready'),
-      selectedIndexes: Array.isArray(extra.selectedIndexes)
-        ? extra.selectedIndexes.slice()
-        : [],
+      flashesUsed: used,
       submitted: !!extra.submitted,
-      solutionsShown: !!extra.solutionsShown,
-      answerOrder: Array.isArray(extra.answerOrder)
-        ? extra.answerOrder.slice()
+      taskState: extra.taskState && typeof extra.taskState === 'object'
+        ? extra.taskState
         : undefined
     };
   },
@@ -39,39 +36,34 @@ const StateService = {
    * @param {object|null|undefined} state
    * @returns {{
    *   phase: Phase,
-   *   selectedIndexes: number[],
+   *   flashesUsed: number,
    *   submitted: boolean,
-   *   solutionsShown: boolean,
-   *   answerOrder: number[]|undefined
+   *   taskState: object|undefined
    * }}
    */
   normalize(state) {
     if (!state || typeof state !== 'object') {
       return {
         phase: 'ready',
-        selectedIndexes: [],
+        flashesUsed: 0,
         submitted: false,
-        solutionsShown: false,
-        answerOrder: undefined
+        taskState: undefined
       };
     }
     let phase = state.phase || 'ready';
-    if (phase === 'flashing' || phase === 'loading') {
-      phase = state.submitted ? 'question' : 'ready';
+    if (phase === 'loading') {
+      phase = 'ready';
     }
-    // Prefer answerOrder; accept legacy `order` from 0.1.x saved state.
-    const rawOrder = Array.isArray(state.answerOrder)
-      ? state.answerOrder
-      : (Array.isArray(state.order) ? state.order : undefined);
+    else if (phase === 'flashing') {
+      phase = 'question';
+    }
+    const used = Math.floor(Number(state.flashesUsed));
     return {
       phase,
-      selectedIndexes: Array.isArray(state.selectedIndexes)
-        ? state.selectedIndexes.map((i) => Number(i)).filter((i) => Number.isFinite(i))
-        : [],
+      flashesUsed: Number.isFinite(used) && used > 0 ? used : 0,
       submitted: !!state.submitted,
-      solutionsShown: !!state.solutionsShown,
-      answerOrder: rawOrder
-        ? rawOrder.map((i) => Number(i)).filter((i) => Number.isFinite(i))
+      taskState: state.taskState && typeof state.taskState === 'object'
+        ? state.taskState
         : undefined
     };
   }

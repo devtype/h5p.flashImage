@@ -22,71 +22,16 @@
       ]
     },
     {
-      "label": "Frage",
-      "description": "Frage, die nach dem Bilderblitzen angezeigt wird.",
-      "default": "<p>Was hast du gesehen?</p>"
-    },
-    {
-      "label": "Antwortmöglichkeiten",
-      "entity": "Option",
-      "field": {
-        "label": "Option",
-        "fields": [
-          { "label": "Text" },
-          { "label": "Richtig" }
-        ]
-      }
-    },
-    {
-      "label": "Gesamtfeedback",
-      "fields": [
-        {
-          "label": "Eigenes Feedback für Punktbereiche festlegen",
-          "description": "Klicke auf „Bereich hinzufügen“, um so viele Bereiche wie nötig anzulegen. Beispiel: 0–20 % schwaches Ergebnis, 21–91 % durchschnittlich, 91–100 % sehr gut!",
-          "entity": "Bereich",
-          "field": {
-            "fields": [
-              { "label": "Punktbereich" },
-              {},
-              {
-                "label": "Feedback für den festgelegten Punktbereich",
-                "placeholder": "Feedback eingeben"
-              }
-            ]
-          }
-        }
-      ]
+      "label": "Aufgabe",
+      "description": "Komplexer Lückentext, der angezeigt wird, nachdem das Bild ausgeblendet wurde."
     },
     {
       "label": "Verhalten",
       "fields": [
         {
-          "label": "Wiederholung des Bilderblitzens erlauben",
-          "description": "Wenn aktiviert, sehen Lernende eine eigene Schaltfläche, um das Bild während der Beantwortung erneut anzuzeigen."
-        },
-        { "label": "Schaltfläche „Überprüfen“ aktivieren" },
-        { "label": "Schaltfläche „Lösung anzeigen“ aktivieren" },
-        { "label": "Schaltfläche „Erneut versuchen“ aktivieren" },
-        {
-          "label": "Fragetyp",
-          "description": "Automatisch nutzt Radiobuttons bei einer richtigen Antwort und Checkboxen bei mehreren.",
-          "options": [
-            { "label": "Automatisch" },
-            { "label": "Einfachauswahl (Radiobuttons)" },
-            { "label": "Mehrfachauswahl (Checkboxen)" }
-          ]
-        },
-        {
-          "label": "Einen Punkt für die gesamte Aufgabe vergeben",
-          "description": "Wenn aktiviert, erhalten Lernende entweder die volle Punktzahl oder null (Alles-oder-nichts)."
-        },
-        { "label": "Antworten zufällig anordnen" },
-        {
-          "label": "Maximale Punktzahl",
-          "description": "Wird verwendet, wenn „Einen Punkt für die gesamte Aufgabe vergeben“ deaktiviert ist. Im Ein-Punkt-Modus beträgt die effektive Maximalpunktzahl 1."
-        },
-        { "label": "Bestätigungsdialog bei „Überprüfen“ anzeigen" },
-        { "label": "Bestätigungsdialog bei „Erneut versuchen“ anzeigen" }
+          "label": "Maximale Bildanzeigen",
+          "description": "Wie oft die Lernenden das Bild in einem Versuch sehen dürfen, einschließlich der ersten Anzeige. 0 bedeutet unbegrenzt."
+        }
       ]
     },
     {
@@ -94,46 +39,13 @@
       "fields": [
         { "label": "Schaltfläche „Bilderblitzen starten“", "default": "Bilderblitzen starten" },
         { "label": "Schaltfläche „Bild erneut anzeigen“", "default": "Bild erneut anzeigen" },
-        { "label": "Lademeldung", "default": "Bild wird geladen…" },
-        { "label": "Schaltfläche „Überprüfen“", "default": "Überprüfen" },
-        { "label": "Schaltfläche „Lösung anzeigen“", "default": "Lösung anzeigen" },
-        { "label": "Schaltfläche „Erneut versuchen“", "default": "Erneut versuchen" },
-        {
-          "label": "Beschriftung der Punkteanzeige",
-          "description": "Verfügbare Variablen: :num und :total",
-          "default": "Du hast :num von :total Punkten erreicht"
-        },
-        {
-          "label": "Keine Antwort ausgewählt",
-          "default": "Bitte wähle eine Antwort aus, bevor du überprüfst."
-        }
-      ]
-    },
-    {
-      "label": "Bestätigungsdialog „Überprüfen“",
-      "fields": [
-        { "label": "Überschrift", "default": "Abschließen?" },
-        { "label": "Text", "default": "Möchtest du wirklich abschließen?" },
-        { "label": "Beschriftung Abbrechen", "default": "Abbrechen" },
-        { "label": "Beschriftung Bestätigen", "default": "Abschließen" }
-      ]
-    },
-    {
-      "label": "Bestätigungsdialog „Erneut versuchen“",
-      "fields": [
-        { "label": "Überschrift", "default": "Erneut versuchen?" },
-        { "label": "Text", "default": "Möchtest du wirklich erneut versuchen?" },
-        { "label": "Beschriftung Abbrechen", "default": "Abbrechen" },
-        { "label": "Beschriftung Bestätigen", "default": "Bestätigen" }
+        { "label": "Lademeldung", "default": "Bild wird geladen…" }
       ]
     },
     {
       "label": "Barrierefreiheit",
       "fields": [
         { "label": "Beschriftung des Blitzbildbereichs", "default": "Blitzbild" },
-        { "label": "Beschriftung der Antwortmöglichkeiten", "default": "Antwortmöglichkeiten" },
-        { "label": "Ansage richtige Antwort", "default": "Richtige Antwort" },
-        { "label": "Ansage falsche Antwort", "default": "Falsche Antwort" },
         { "label": "Ansage Bilderblitzen gestartet", "default": "Bilderblitzen gestartet." },
         {
           "label": "Ansage Bilderblitzen beendet",
